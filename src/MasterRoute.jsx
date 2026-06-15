@@ -19,10 +19,30 @@ function MasterRoute() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<NavBar />}>
           <Route index element={<Dashboard />} />
-          <Route path="companies" element={<Companies />} />
-          <Route path="users" element={<Users />} />
-          <Route path="inventory-tasks" element={<InventoryTasks />} />
-          <Route path="reports" element={<Reports />} />
+          <Route element={<ProtectedRoute requiredPermission="COMPANY_VIEW" />}>
+            <Route path="companies" element={<Companies />} />
+          </Route>
+          <Route element={<ProtectedRoute requiredPermission="USER_VIEW" />}>
+            <Route path="users" element={<Users />} />
+          </Route>
+          <Route
+            element={
+              <ProtectedRoute
+                requiredPermission={['VEHICLE_TASK_VIEW', 'ASSET_TASK_VIEW', 'SPARE_PART_TASK_VIEW']}
+              />
+            }
+          >
+            <Route path="inventory-tasks" element={<InventoryTasks />} />
+          </Route>
+          <Route
+            element={
+              <ProtectedRoute
+                requiredPermission={['VEHICLE_REPORT_VIEW', 'ASSET_REPORT_VIEW', 'SPARE_PART_REPORT_VIEW']}
+              />
+            }
+          >
+            <Route path="reports" element={<Reports />} />
+          </Route>
           <Route path="update-password" element={<ChangePassword />} />
           <Route path="login" element={<Navigate to="/" replace />} />
         </Route>

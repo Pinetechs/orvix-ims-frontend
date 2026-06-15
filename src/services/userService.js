@@ -1,7 +1,13 @@
-import { apiClient } from './apiClient.js';
-import { apiRoute } from '../util/constant.js';
+import { apiRequest, buildQueryString } from './httpClient.js';
 
-export const getUsers = async () => {
-  const response = await apiClient.get(apiRoute.users);
-  return response.data;
-};
+export function getUsers(params = {}) {
+  const query = buildQueryString(params);
+  return apiRequest(query ? `/api/users?${query}` : '/api/users');
+}
+
+export function createUser(payload) {
+  return apiRequest('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}

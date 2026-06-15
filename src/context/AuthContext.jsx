@@ -16,6 +16,14 @@ const readStoredUser = () => {
   }
 };
 
+const readStoredToken = () => {
+  try {
+    return sessionStorage.getItem(storageKeys.authToken) || null;
+  } catch (error) {
+    return null;
+  }
+};
+
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
   const [userInfo, setUserInfo] = useState(readStoredUser);
@@ -23,9 +31,28 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState('');
 
   const persistUser = (data) => {
-    const resolvedUser = data?.data || data?.userInfo || data;
-    setUserInfo(resolvedUser);
-    localStorage.setItem(storageKeys.userInfo, JSON.stringify(resolvedUser));
+    const resolved = data?.data || data?.userInfo || data || {};
+    const token = resolved?.token || resolved?.data?.token || resolved?.accessToken || null;
+
+    // Prefer storing token in sessionStorage to reduce persistent exposure.
+    try {
+      if (token) sessionStorage.setItem(storageKeys.authToken, token);
+    } catch (err) {
+      // ignore storage failures
+    }
+
+    // Persist only non-sensitive user info in localStorage
+    const resolvedUser = resolved.user || resolved;
+    const safeUser = { ...resolvedUser };
+    if (safeUser.token) delete safeUser.token;
+    if (safeUser.accessToken) delete safeUser.accessToken;
+
+    setUserInfo(safeUser);
+    try {
+      localStorage.setItem(storageKeys.userInfo, JSON.stringify(safeUser));
+    } catch (err) {
+      // ignore storage failures
+    }
   };
 
   const clearAuth = useCallback(async () => {
@@ -33,6 +60,18 @@ export function AuthProvider({ children }) {
     setError('');
     await clearSessionCache(queryClient);
   }, [queryClient]);
+
+  useEffect(() => {
+    // Ensure token is loaded into sessionStorage if present in persisted storage (best-effort)
+    const token = readStoredToken();
+    if (token) {
+      try {
+        sessionStorage.setItem(storageKeys.authToken, token);
+      } catch (err) {
+        // ignore
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(clearAuth);
@@ -71,6 +110,8 @@ export function AuthProvider({ children }) {
 
   const resetAuthError = () => setError('');
 
+  
+
   const value = useMemo(
     () => ({
       userInfo,
@@ -83,6 +124,12 @@ export function AuthProvider({ children }) {
       logout,
       resetAuthError,
       permissions: userInfo?.permissions || userInfo?.user?.permissions || [],
+      hasPermission: (perm) => {
+        const perms = userInfo?.permissions || userInfo?.user?.permissions || [];
+        if (!perm) return false;
+        if (Array.isArray(perm)) return perm.some((p) => perms.includes(p));
+        return perms.includes(perm);
+      },
       userType: userInfo?.userType || userInfo?.user?.userType || userInfo?.accountType,
     }),
     [userInfo, loading, error],

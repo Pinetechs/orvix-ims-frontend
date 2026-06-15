@@ -1,0 +1,39 @@
+{
+  "dashboard": "Dashboard",
+  "companies": "Companies",
+  "users": "Users",
+  "inventoryTasks": "Inventory Tasks",
+  "reports": "Reports",
+  "login": "Login",
+  "logout": "Logout",
+  "changePassword": "Change Password",
+  "permissions": {
+    "noCompanyViewPermission": "You don't have permission to view companies.",
+    "noUserViewPermission": "You don't have permission to view users.",
+    "noInventoryTaskViewPermission": "You don't have permission to view inventory tasks.",
+    "noReportViewPermission": "You don't have permission to view reports.",
+    "contactAdmin": "Please contact your administrator to grant the appropriate permission."
+  },
+  "loginPage": {
+    "systemLogoAlt": "System logo",
+    "companyLogoAlt": "Company logo",
+    "systemName": "Orvix IMS",
+    "systemTagline": "Inventory management system",
+    "language": "Language",
+    "visitorTitle": "Inventory Management System",
+    "visitorText": "A focused inventory system for faster stock control and reporting.",
+    "feature1": "Inventory tracking made simple",
+    "feature2": "Real-time stock visibility",
+    "feature3": "Secure access for every user",
+    "sideNote": "Powered by Orvix ERP",
+    "title": "Secure sign in",
+    "subtitle": "Enter your credentials to continue to the IMS dashboard.",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "loginButton": "Sign in",
+    "loading": "Loading settings...",
+    "settingsError": "Unable to load settings, continuing with current defaults.",
+    "forgotPassword": "Forgot password? Contact support.",
+    "copyright": "© 2026 Orvix by Pintechs — pinetechs.com"
+  }
+}

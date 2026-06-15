@@ -10,9 +10,13 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f7f9fb;
+  background: #f4f7ff;
 }
 
 * {
   box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(4, 112, 255, 0.24);
 }

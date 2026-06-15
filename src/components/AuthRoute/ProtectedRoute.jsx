@@ -3,8 +3,8 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import Loader from '../Loader/index.js';
 
-const ProtectedRoute = () => {
-  const { isAuthenticate, loading } = useAuth();
+const ProtectedRoute = ({ requiredPermission = null, children }) => {
+  const { isAuthenticate, loading, hasPermission } = useAuth();
   const location = useLocation();
 
   if (loading) return <Loader />;
@@ -13,7 +13,13 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  return <Outlet />;
+  if (requiredPermission) {
+    const ok = hasPermission ? hasPermission(requiredPermission) : false;
+    if (!ok) return <Navigate to="/" replace />;
+  }
+
+  // If children provided, render them; otherwise render nested routes outlet
+  return children ? children : <Outlet />;
 };
 
 export default ProtectedRoute;
