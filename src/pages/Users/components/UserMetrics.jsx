@@ -28,8 +28,9 @@ function UserMetrics({ data, rows }) {
           sm: 'repeat(2, 1fr)',
           lg: 'repeat(4, 1fr)',
         },
-        gap: 2,
-        mb: 3,
+        gap: { xs: 1.25, sm: 2 },
+        mb: { xs: 2, md: 3 },
+        minWidth: 0,
       }}
     >
       <MetricCard icon={<PeopleAltOutlinedIcon />} label="Total Users" value={stats.total} />

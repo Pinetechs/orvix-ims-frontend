@@ -1,2 +1,0 @@
-Build verification: npm run build completed successfully.
-Notes: Vite displayed non-blocking warnings for third-party "use client" directives and bundle size; no build errors.

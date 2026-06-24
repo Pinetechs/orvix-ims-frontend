@@ -16,6 +16,7 @@ import { ACCESS_CHANNEL_CHIP_CONFIG, BOOLEAN_STATUS_CHIP_CONFIG, USER_TYPE_CHIP_
 
 export const createUserTableColumns = ({
   auth,
+  isMobile,
   onEdit,
   onResetPassword,
   onToggleStatus,
@@ -23,15 +24,15 @@ export const createUserTableColumns = ({
   {
     field: 'user',
     headerName: 'User',
-    minWidth: 260,
+    minWidth: isMobile ? 150 : 180,
     flex: 1.3,
     sortable: false,
     renderCell: (params) => (
-      <Stack direction="row" spacing={1.4} alignItems="center" sx={{ minWidth: 0 }}>
+      <Stack direction="row" spacing={isMobile ? 1 : 1.4} alignItems="center" sx={{ minWidth: 0, width: '100%' }}>
         <Avatar
           sx={(theme) => ({
-            width: 38,
-            height: 38,
+            width: isMobile ? 32 : 38,
+            height: isMobile ? 32 : 38,
             fontSize: '0.86rem',
             fontWeight: 900,
             color: theme.palette.primary.main,
@@ -45,9 +46,11 @@ export const createUserTableColumns = ({
           <Typography sx={{ fontWeight: 850, lineHeight: 1.25 }} noWrap>
             {getFullName(params.row)}
           </Typography>
-          <Typography color="text.secondary" sx={{ fontSize: '0.8rem' }} noWrap>
-            @{params.row.username || '-'}
-          </Typography>
+          {!isMobile && (
+            <Typography color="text.secondary" sx={{ fontSize: '0.8rem' }} noWrap>
+              @{params.row.username || '-'}
+            </Typography>
+          )}
         </Box>
       </Stack>
     ),
@@ -55,8 +58,8 @@ export const createUserTableColumns = ({
   {
     field: 'email',
     headerName: 'Email',
-    minWidth: 220,
-    flex: 1,
+    minWidth: isMobile ? 140 : 220,
+    flex: isMobile ? 1.1 : 1,
     renderCell: (params) => (
       <Typography sx={{ fontSize: '0.88rem' }} noWrap>
         {params.row.email || '-'}
@@ -66,15 +69,15 @@ export const createUserTableColumns = ({
   {
     field: 'phone',
     headerName: 'Phone',
-    minWidth: 145,
-    flex: 0.7,
+    minWidth: isMobile ? 120 : 145,
+    flex: isMobile ? 0.8 : 0.7,
     renderCell: (params) => params.row.phone || '-',
   },
   {
     field: 'company',
     headerName: 'Company',
-    minWidth: 180,
-    flex: 0.9,
+    minWidth: isMobile ? 140 : 180,
+    flex: isMobile ? 0.8 : 0.9,
     sortable: false,
     renderCell: (params) => (
       <Typography sx={{ fontWeight: 700 }} noWrap>
@@ -99,7 +102,7 @@ export const createUserTableColumns = ({
   {
     field: 'status',
     headerName: 'Status',
-    minWidth: 120,
+    minWidth: isMobile ? 96 : 120,
     flex: 0.55,
     sortable: false,
     renderCell: (params) => <EnumChip value={String(isUserActive(params.row))}config={BOOLEAN_STATUS_CHIP_CONFIG}/>,
@@ -107,7 +110,7 @@ export const createUserTableColumns = ({
   {
     field: 'actions',
     headerName: '',
-    width: 70,
+    width: isMobile ? 56 : 70,
     sortable: false,
     filterable: false,
     align: 'center',

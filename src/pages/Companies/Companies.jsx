@@ -1,15 +1,14 @@
 import React from 'react';
 import { Alert, Box, Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth.js';
 import ServerTablePage from '../Placeholder/ServerTablePage.jsx';
-import { getCompanies } from '../../services/companyService.js';
+import { useCompaniesQuery } from './hooks/useCompaniesQuery.js';
 
 function Companies() {
   const { t } = useTranslation();
   const auth = useAuth();
-  const query = useQuery({ queryKey: ['companies'], queryFn: getCompanies });
+  const query = useCompaniesQuery();
 
   if (!auth.hasPermission('COMPANY_VIEW')) {
     return (

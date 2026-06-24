@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Alert,Box,  Button,Card,CardContent,Divider, Stack,Typography,} from '@mui/material';
-import { alpha } from '@mui/material/styles';
+import { Alert, Box, Button, Card, CardContent, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -15,13 +15,13 @@ import { QuerySearchField,QuerySelectField} from '../../components/search/index.
 
 import UserMetrics from './components/UserMetrics.jsx';
 
-import {ACCESS_CHANNEL_OPTIONS,STATUS_OPTIONS, USER_TYPE_OPTIONS} from './constants/userOptions.js';
 
 import { getTotalElements,  normalizeRows,} from './utils/userMappers.js';
 
 import { createUserTableColumns } from './utils/userTableColumns.jsx';
 import { useUsersQuery } from './hooks/useUsersQuery.js';
 import { useCreateUserMutation } from './hooks/useCreateUserMutation.js';
+import SearchUserCard from './components/SearchUserCard.jsx';
 
 function Users() {
   const { t } = useTranslation();
@@ -37,14 +37,10 @@ function Users() {
   const accessChannel = searchParams.get('accessChannel') || 'ALL';
   const status = searchParams.get('status') || 'ALL';
 
-  const usersQuery = useUsersQuery({
-    page,
-    pageSize,
-    search,
-    userType,
-    accessChannel,
-    status,
-  });
+
+
+
+  const usersQuery = useUsersQuery({page,pageSize,search, userType, accessChannel, status, });
 
   const createUserMutation = useCreateUserMutation({
     onSuccess: () => setUserFormOpen(false),
@@ -65,9 +61,13 @@ function Users() {
     setSearchParams(next, { replace: true });
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const columns = useMemo(() => {
-    return createUserTableColumns({
+    const allColumns = createUserTableColumns({
       auth,
+      isMobile,
       onEdit: (row) => {
         console.log('Edit user:', row);
       },
@@ -78,7 +78,13 @@ function Users() {
         console.log('Toggle status:', row);
       },
     });
-  }, [auth]);
+
+    if (!isMobile) {
+      return allColumns;
+    }
+
+    return allColumns.filter((column) => ['user', 'status', 'actions'].includes(column.field));
+  }, [auth, isMobile]);
 
   if (!auth.hasPermission('USER_VIEW')) {
     return (
@@ -92,37 +98,56 @@ function Users() {
   }
 
   return (
-    <Box>
+    <Box sx={{ width: '100%', maxWidth: '100%', minWidth: 0, overflow: 'hidden' }}>
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         alignItems={{ xs: 'stretch', md: 'center' }}
         justifyContent="space-between"
         spacing={2}
-        sx={{ mb: 3 }}
+        sx={{ mb: { xs: 2, md: 3 }, minWidth: 0 }}
       >
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography
             variant="h4"
             sx={{
               fontWeight: 950,
-              letterSpacing: -0.7,
+              letterSpacing: 0,
               mb: 0.6,
+              fontSize: { xs: '1.85rem', sm: '2.125rem' },
+              lineHeight: 1.15,
             }}
           >
             Users
           </Typography>
 
-          <Typography color="text.secondary">
+          <Typography
+            color="text.secondary"
+            sx={{
+              maxWidth: 720,
+              overflowWrap: 'anywhere',
+              lineHeight: 1.55,
+            }}
+          >
             Manage system admins, company admins, supervisors and inventory staff.
           </Typography>
         </Box>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
+        <Stack
+          direction="row"
+          spacing={1.2}
+          sx={{
+            minWidth: 0,
+            '& > .MuiButton-root': {
+              flex: { xs: 1, sm: '0 0 auto' },
+            },
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<RefreshRoundedIcon />}
             onClick={() => usersQuery.refetch()}
             disabled={usersQuery.isFetching}
+            sx={{ minWidth: 0 }}
           >
             Refresh
           </Button>
@@ -132,6 +157,7 @@ function Users() {
               variant="contained"
               startIcon={<AddRoundedIcon />}
               onClick={() => setUserFormOpen(true)}
+              sx={{ minWidth: 0 }}
             >
               Add User
             </Button>
@@ -154,52 +180,19 @@ function Users() {
           border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
           boxShadow: `0 18px 45px ${alpha(theme.palette.common.black, 0.06)}`,
           overflow: 'hidden',
+          maxWidth: '100%',
         })}
       >
         <CardContent sx={{ p: 0 }}>
-          <Box sx={{ p: 2.4 }}>
-            <Stack
-              direction={{ xs: 'column', lg: 'row' }}
-              spacing={1.5}
-              alignItems={{ xs: 'stretch', lg: 'center' }}
-            >
-              <QuerySearchField
-                paramName="search"
-                placeholder="Search by name, username, email, phone or company..."
-                updateOnEnterOnly
-                sx={{ flex: 1 }}
-              />
-
-              <QuerySelectField
-                paramName="userType"
-                label="User Type"
-                allLabel="All Types"
-                minWidth={210}
-                options={USER_TYPE_OPTIONS}
-              />
-
-              <QuerySelectField
-                paramName="accessChannel"
-                label="Channel"
-                allLabel="All"
-                minWidth={150}
-                options={ACCESS_CHANNEL_OPTIONS}
-              />
-
-              <QuerySelectField
-                paramName="status"
-                label="Status"
-                allLabel="All"
-                minWidth={150}
-                options={STATUS_OPTIONS}
-              />
-            </Stack>
-          </Box>
+       
+       <SearchUserCard />
 
           <Divider />
 
-          <Box sx={{ height: 590, width: '100%' }}>
+          <Box sx={{ width: '100%', maxWidth: '100%', overflowX: 'auto' }}>
             <DataGrid
+              autoHeight
+              density={isMobile ? 'compact' : 'standard'}
               rows={rows}
               columns={columns}
               loading={usersQuery.isLoading || usersQuery.isFetching}
@@ -213,7 +206,16 @@ function Users() {
               }}
               onPaginationModelChange={updatePaginationParams}
               sx={{
+                minHeight: 420,
+                width: '100%',
+                minWidth: isMobile ? 0 : 720,
                 border: 0,
+                '& .MuiDataGrid-main': {
+                  minWidth: 0,
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  overflowX: 'auto',
+                },
                 '& .MuiDataGrid-columnHeaders': {
                   fontWeight: 900,
                 },

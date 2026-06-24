@@ -1,9 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { loginRequest, logoutRequest } from '../services/authService.js';
 import { clearSessionCache } from '../services/sessionCache.js';
 import { setUnauthorizedHandler } from '../services/authEvents.js';
 import { storageKeys } from '../util/constant.js';
+import { useLoginMutation } from '../hooks/useLoginMutation.js';
+import { useLogoutMutation } from '../hooks/useLogoutMutation.js';
 
 const AuthContext = createContext(null);
 
@@ -27,10 +28,9 @@ const readStoredToken = () => {
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
   const [userInfo, setUserInfo] = useState(readStoredUser);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const persistUser = (data) => {
+  const persistUser = useCallback((data) => {
     const resolved = data?.data || data?.userInfo || data || {};
     const token = resolved?.token || resolved?.data?.token || resolved?.accessToken || null;
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
     } catch (err) {
       // ignore storage failures
     }
-  };
+  }, []);
 
   const clearAuth = useCallback(async () => {
     setUserInfo(null);
@@ -78,39 +78,39 @@ export function AuthProvider({ children }) {
     return () => setUnauthorizedHandler(null);
   }, [clearAuth]);
 
-
-
-  
-  const login = async ({ username, password }) => {
-    console.log("username", username, "password", password)
-    setLoading(true);
-    setError('');
-    try {
-      const data = await loginRequest({ "username": username, "password":  password });
+  const loginMutation = useLoginMutation({
+    onMutate: () => {
+      setError('');
+    },
+    onSuccess: (data) => {
       persistUser(data);
-      return data;
-    } catch (err) {
-      const message = err?.message || 'Login failed';
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    onError: (err) => {
+      setError(err?.message || 'Login failed');
+    },
+  });
 
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await logoutRequest();
-    } finally {
+  const logoutMutation = useLogoutMutation({
+    onSettled: async () => {
       await clearAuth();
-      setLoading(false);
+    },
+  });
+
+  const login = useCallback(async ({ username, password }) => {
+    setError('');
+    return loginMutation.mutateAsync({ username, password });
+  }, [loginMutation]);
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (err) {
+      await clearAuth();
     }
-  };
+  }, [clearAuth, logoutMutation]);
 
-  const resetAuthError = () => setError('');
-
-  
+  const resetAuthError = useCallback(() => setError(''), []);
+  const loading = loginMutation.isPending || logoutMutation.isPending;
 
   const value = useMemo(
     () => ({
@@ -132,7 +132,7 @@ export function AuthProvider({ children }) {
       },
       userType: userInfo?.userType || userInfo?.user?.userType || userInfo?.accountType,
     }),
-    [userInfo, loading, error],
+    [error, loading, login, logout, resetAuthError, userInfo],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

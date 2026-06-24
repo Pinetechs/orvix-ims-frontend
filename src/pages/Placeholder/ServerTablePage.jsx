@@ -42,14 +42,17 @@ function ServerTablePage({ title, description, query }) {
 
       <Card>
         <CardContent>
-          <Box sx={{ height: 520, width: '100%' }}>
+          <Box sx={{ width: '100%' }}>
             <DataGrid
+              autoHeight
               rows={visibleRows}
               columns={columns}
               loading={query.isLoading || query.isFetching}
               disableRowSelectionOnClick
               pageSizeOptions={[10, 25, 50]}
+              autoPageSize={false}
               initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
+              sx={{ minHeight: 420 }}
             />
           </Box>
         </CardContent>

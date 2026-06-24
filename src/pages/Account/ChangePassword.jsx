@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Stack, TextField, Typography } from '@mui/material';
-import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { changePasswordRequest } from '../../services/authService.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { useToast } from '../../hooks/useToast.js';
+import { useChangePasswordMutation } from '../../hooks/useChangePasswordMutation.js';
 
 function ChangePassword() {
   const navigate = useNavigate();
@@ -13,8 +12,7 @@ function ChangePassword() {
   const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [localError, setLocalError] = useState('');
 
-  const mutation = useMutation({
-    mutationFn: changePasswordRequest,
+  const mutation = useChangePasswordMutation({
     onSuccess: async () => {
       toast.showSuccessToast('Password changed successfully. Please login again.');
       await auth.logout();
@@ -40,7 +38,7 @@ function ChangePassword() {
   };
 
   return (
-    <Box sx={{ maxWidth: 560 }}>
+    <Box sx={{ width: '100%', maxWidth: 560 }}>
       <Typography variant="h4" fontWeight={900} gutterBottom>Change Password</Typography>
       <Card>
         <CardContent>

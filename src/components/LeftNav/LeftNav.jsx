@@ -115,18 +115,20 @@ const LeftNav = ({ drawerOpen, onNavClick }) => {
         </Drawer>
       )}
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '100vh', ml: { xs: 0, md: '104px' } }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '100vh', ml: { xs: 0, md: '104px' }, minWidth: 0 }}>
         <Box
           component="main"
           sx={(muiTheme) => ({
             flex: 1,
             pt: { xs: '88px', md: '100px' },
-            px: { xs: 1.5, md: 3 },
+            px: { xs: 1, sm: 1.5, md: 3 },
             pb: 3,
             bgcolor: muiTheme.palette.background.default,
             background:
               'radial-gradient(circle at 12% 10%, rgba(0,81,210,0.07) 0, transparent 26%), radial-gradient(circle at 88% 18%, rgba(16,124,255,0.08) 0, transparent 28%), #F4F7FF',
             minWidth: 0,
+            width: '100%',
+            overflowX: 'hidden',
           })}
         >
           <Outlet />

@@ -1,15 +1,14 @@
 import React from 'react';
 import { Alert, Box, Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth.js';
 import ServerTablePage from '../Placeholder/ServerTablePage.jsx';
-import { getInventoryTasks } from '../../services/inventoryTaskService.js';
+import { useInventoryTasksQuery } from './hooks/useInventoryTasksQuery.js';
 
 function InventoryTasks() {
   const { t } = useTranslation();
   const auth = useAuth();
-  const query = useQuery({ queryKey: ['inventory-tasks'], queryFn: getInventoryTasks });
+  const query = useInventoryTasksQuery();
 
   if (!auth.hasPermission(['VEHICLE_TASK_VIEW', 'ASSET_TASK_VIEW', 'SPARE_PART_TASK_VIEW'])) {
     return (

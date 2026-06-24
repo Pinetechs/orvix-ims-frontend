@@ -1,13 +1,20 @@
-import { apiRequest, buildQueryString } from './httpClient.js';
+import { apiClient, cleanRequestParams, getErrorMessage } from './apiClient.js';
+import { apiRoute } from '../util/constant.js';
 
-export function getUsers(params = {}) {
-  const query = buildQueryString(params);
-  return apiRequest(query ? `/api/users?${query}` : '/api/users');
+export async function getUsers(params = {}) {
+  try {
+    const response = await apiClient.get(apiRoute.users, { params: cleanRequestParams(params) });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to load users'));
+  }
 }
 
-export function createUser(payload) {
-  return apiRequest('/api/users', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+export async function createUser(payload) {
+  try {
+    const response = await apiClient.post(apiRoute.users, payload);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not create user'));
+  }
 }

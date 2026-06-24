@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllSettingsRequest, mapSettings } from '../services/settingsService.js';
+import { queryKeys } from '../services/queryKeys.js';
 
 export const useSettings = () => {
   const queryClient = useQueryClient();
-  const queryKey = ['settings'];
+  const queryKey = queryKeys.settings.all;
   const cachedSettings = queryClient.getQueryData(queryKey);
 
   const query = useQuery({

@@ -31,3 +31,8 @@ apiClient.interceptors.response.use(
 
 export const getErrorMessage = (error, fallback = 'Something went wrong') =>
   error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
+
+export const cleanRequestParams = (params = {}) =>
+  Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '' && value !== 'ALL'),
+  );

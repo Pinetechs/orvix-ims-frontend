@@ -23,20 +23,10 @@ import FormikTextField from '../../components/form/FormikTextField.jsx';
 import FormikSelect from '../../components/form/FormikSelect.jsx';
 import FormikAsyncAutocomplete from '../../components/form/FormikAsyncAutocomplete.jsx';
 import { getCompanies } from '../../services/companyService.js';
+import { queryKeys } from '../../services/queryKeys.js';
+import { USER_TYPE_OPTIONS as USER_TYPES  ,ACCESS_CHANNEL_OPTIONS as ACCESS_CHANNELS  } from './constants/userOptions.js';
 
-const USER_TYPES = [
-  { value: 'SYSTEM_ADMIN', label: 'System Admin' },
-  { value: 'PINETECHS_SUPPORT_STAFF', label: 'Pinetechs Support' },
-  { value: 'COMPANY_ADMIN', label: 'Company Admin' },
-  { value: 'SUPERVISOR', label: 'Supervisor' },
-  { value: 'INVENTORY_STAFF', label: 'Inventory Staff' },
-];
 
-const ACCESS_CHANNELS = [
-  { value: 'WEB', label: 'WEB' },
-  { value: 'APP', label: 'APP' },
-  { value: 'BOTH', label: 'BOTH' },
-];
 
 const initialValues = {
   username: '',
@@ -298,7 +288,7 @@ function UserFormDrawer({
               multiple
               disabled={loading || !companyRequired}
               required={companyRequired}
-              queryKey={['companies', 'autocomplete']}
+              queryKey={queryKeys.companies.autocomplete({ active: true, page: 0, size: 20, sort: 'name,asc' })}
               queryFn={(params) =>
                 getCompanies({
                   search: params.search,

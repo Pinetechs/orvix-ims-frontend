@@ -1,27 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryKeys } from '../../../services/queryKeys.js';
 import { getUsers } from '../../../services/userService.js';
 
-export function useUsersQuery({page, pageSize,search,userType,accessChannel, status,}) {
+export function useUsersQuery({ page, pageSize, search, userType, accessChannel, status }) {
+  const params = { page, size: pageSize, search, userType, accessChannel,status,sort: 'createdAt,desc',};
+
   return useQuery({
-    queryKey: ['users', 'list', {
-      page,
-      pageSize,
-      search,
-      userType,
-      accessChannel,
-      status,
-    }],
-    queryFn: () =>
-      getUsers({
-        page,
-        size: pageSize,
-        search,
-        userType,
-        accessChannel,
-        status,
-        sort: 'createdAt,desc',
-      }),
+    queryKey: queryKeys.users.list(params),
+    queryFn: () => getUsers(params),
     placeholderData: (previousData) => previousData,
   });
 }

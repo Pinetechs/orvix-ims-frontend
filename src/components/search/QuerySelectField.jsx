@@ -40,8 +40,9 @@ function QuerySelectField({
       size={size}
       disabled={disabled}
       sx={{
+        width: '100%',
         minWidth: {
-          xs: '100%',
+          xs: 0,
           lg: minWidth,
         },
         ...sx,
