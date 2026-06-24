@@ -5,14 +5,16 @@ import { alpha } from '@mui/material/styles';
 
 import UserActionsMenu from '../components/UserActionsMenu.jsx';
 
-import {
-  getCompanyName,
-  getFullName,
-  getInitials,
-  isUserActive,
-} from './userMappers.js';
+import { getCompanyName,getFullName, getInitials,  isUserActive,} from './userMappers.js';
 import EnumChip from '../../../components/common/EnumChip.jsx';
-import { ACCESS_CHANNEL_CHIP_CONFIG, BOOLEAN_STATUS_CHIP_CONFIG, USER_TYPE_CHIP_CONFIG } from '../../../constants/enumChipConfigs.jsx';
+import { ACCESS_CHANNEL_CHIP_CONFIG, BOOLEAN_STATUS_CHIP_CONFIG, INVENTORY_DOMAIN_CHIP_CONFIG, USER_TYPE_CHIP_CONFIG } from '../../../constants/enumChipConfigs.jsx';
+
+const normalizeInventoryDomains = (row) => {
+  if (Array.isArray(row.inventoryDomains)) return row.inventoryDomains;
+  if (Array.isArray(row.domains)) return row.domains;
+  if (row.inventoryDomain) return [row.inventoryDomain];
+  return [];
+};
 
 export const createUserTableColumns = ({
   auth,
@@ -26,7 +28,6 @@ export const createUserTableColumns = ({
     headerName: 'User',
     minWidth: isMobile ? 150 : 180,
     flex: 1.3,
-    sortable: false,
     renderCell: (params) => (
       <Stack direction="row" spacing={isMobile ? 1 : 1.4} alignItems="center" sx={{ minWidth: 0, width: '100%' }}>
         <Avatar
@@ -71,7 +72,7 @@ export const createUserTableColumns = ({
     headerName: 'Phone',
     minWidth: isMobile ? 120 : 145,
     flex: isMobile ? 0.8 : 0.7,
-    renderCell: (params) => params.row.phone || '-',
+    renderCell: (params) => params.row.mobile || params.row.phone || '-',
   },
   {
     field: 'company',
@@ -100,11 +101,37 @@ export const createUserTableColumns = ({
     renderCell: (params) => <EnumChip value={params.row.accessChannel} config={ACCESS_CHANNEL_CHIP_CONFIG} />,
   },
   {
+    field: 'inventoryDomains',
+    headerName: 'Domains',
+    minWidth: isMobile ? 150 : 230,
+    flex: isMobile ? 1 : 1.05,
+    sortable: false,
+    renderCell: (params) => {
+      const domains = normalizeInventoryDomains(params.row);
+
+      if (domains.length === 0) {
+        return <Typography color="text.secondary">-</Typography>;
+      }
+
+      return (
+        <Stack direction="row" spacing={0.7} sx={{ minWidth: 0, overflow: 'hidden', flexWrap: 'wrap', py: 0.5 }}>
+          {domains.map((domain) => (
+            <EnumChip
+              key={domain}
+              value={domain}
+              config={INVENTORY_DOMAIN_CHIP_CONFIG}
+              sx={{ maxWidth: '100%' }}
+            />
+          ))}
+        </Stack>
+      );
+    },
+  },
+  {
     field: 'status',
     headerName: 'Status',
     minWidth: isMobile ? 96 : 120,
     flex: 0.55,
-    sortable: false,
     renderCell: (params) => <EnumChip value={String(isUserActive(params.row))}config={BOOLEAN_STATUS_CHIP_CONFIG}/>,
   },
   {

@@ -5,6 +5,9 @@ import PhoneAndroidOutlinedIcon from '@mui/icons-material/PhoneAndroidOutlined';
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import BlockRoundedIcon from '@mui/icons-material/BlockRounded';
+import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import BuildCircleOutlinedIcon from '@mui/icons-material/BuildCircleOutlined';
 
 export const USER_TYPE_CHIP_CONFIG = {
   SYSTEM_ADMIN: {
@@ -63,6 +66,27 @@ export const BOOLEAN_STATUS_CHIP_CONFIG = {
     label: 'Disabled',
     color: 'default',
     icon: <BlockRoundedIcon />,
+    variant: 'outlined',
+  },
+};
+
+export const INVENTORY_DOMAIN_CHIP_CONFIG = {
+  VEHICLE: {
+    label: 'Vehicle',
+    color: 'primary',
+    icon: <DirectionsCarFilledOutlinedIcon />,
+    variant: 'outlined',
+  },
+  ASSET: {
+    label: 'Asset',
+    color: 'secondary',
+    icon: <Inventory2OutlinedIcon />,
+    variant: 'outlined',
+  },
+  SPARE_PART: {
+    label: 'Spare Part',
+    color: 'warning',
+    icon: <BuildCircleOutlinedIcon />,
     variant: 'outlined',
   },
 };

@@ -29,8 +29,29 @@ apiClient.interceptors.response.use(
   },
 );
 
-export const getErrorMessage = (error, fallback = 'Something went wrong') =>
-  error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
+export const getErrorMessage = (error, fallback = 'Something went wrong') => {
+
+
+
+
+  if (error?.response?.data?.detail && error?.response?.data?.detail?.length > 0){
+
+
+    return error?.response?.data?.detail
+  }
+
+  if (error?.response?.data?.message && error?.response?.data?.errors){
+
+    var errorMessages = error?.response?.data?.message + '\n';
+    error?.response?.data?.errors.forEach((err) => {
+      errorMessages += `\n${err}`;
+    });
+    return errorMessages;
+
+  }
+
+  return error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
+};
 
 export const cleanRequestParams = (params = {}) =>
   Object.fromEntries(

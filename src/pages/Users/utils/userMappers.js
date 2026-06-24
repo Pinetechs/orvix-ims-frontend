@@ -33,9 +33,9 @@ export const getInitials = (row) => {
 };
 
 export const getCompanyName = (row) => {
-  if (Array.isArray(row.companies) && row.companies.length > 0) {
-    return row.companies
-      .map((company) => company.name || company.nameEn || company.code)
+  if (Array.isArray(row.companyNames) && row.companyNames.length > 0) {
+    return row.companyNames
+      .map((company) => company)
       .filter(Boolean)
       .join(', ');
   }

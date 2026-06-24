@@ -1,7 +1,7 @@
 import React from 'react'
-import { QuerySearchField, QuerySelectField } from '../../../components/search'
+import { QueryMultiSelectMenu, QuerySearchField, QuerySelectField } from '../../../components/search'
 import { Box } from '@mui/material'
-import { USER_TYPE_OPTIONS , ACCESS_CHANNEL_OPTIONS,STATUS_OPTIONS} from '../constants/userOptions'
+import { USER_TYPE_OPTIONS , ACCESS_CHANNEL_OPTIONS,STATUS_OPTIONS, INVENTORY_DOMAIN_OPTIONS} from '../constants/userOptions'
 
 export default function SearchUserCard() {
   return (
@@ -12,7 +12,7 @@ export default function SearchUserCard() {
                 gridTemplateColumns: {
                   xs: 'minmax(0, 1fr)',
                   sm: 'repeat(2, minmax(0, 1fr))',
-                  lg: 'minmax(280px, 1fr) 210px 150px 150px',
+                  lg: 'minmax(260px, 1fr) 200px 150px 150px 170px',
                 },
                 gap: 1.5,
                 alignItems: 'center',
@@ -51,6 +51,15 @@ export default function SearchUserCard() {
                 minWidth={150}
                 options={STATUS_OPTIONS}
                 sx={{ width: '100%', minWidth: 0 }}
+              />
+
+              <QueryMultiSelectMenu
+                title="Domains"
+                queryParam="inventoryDomains"
+                allLabel="All Domains"
+                options={INVENTORY_DOMAIN_OPTIONS}
+                buttonProps={{ sx: { width: '100%', minWidth: 0, justifyContent: 'space-between' } }}
+                menuWidth={300}
               />
             </Box>
           </Box>

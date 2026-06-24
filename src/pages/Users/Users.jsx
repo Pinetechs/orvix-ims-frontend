@@ -16,12 +16,30 @@ import { QuerySearchField,QuerySelectField} from '../../components/search/index.
 import UserMetrics from './components/UserMetrics.jsx';
 
 
-import { getTotalElements,  normalizeRows,} from './utils/userMappers.js';
+import { getTotalElements, isUserActive, normalizeRows,} from './utils/userMappers.js';
 
 import { createUserTableColumns } from './utils/userTableColumns.jsx';
 import { useUsersQuery } from './hooks/useUsersQuery.js';
 import { useCreateUserMutation } from './hooks/useCreateUserMutation.js';
+import { useUpdateUserMutation } from './hooks/useUpdateUserMutation.js';
+import { useResetUserPasswordMutation } from './hooks/useResetUserPasswordMutation.js';
+import { useSetUserActiveMutation } from './hooks/useSetUserActiveMutation.js';
 import SearchUserCard from './components/SearchUserCard.jsx';
+import ResetUserPasswordDialog from './ResetUserPasswordDialog.jsx';
+
+const GRID_TO_API_SORT_FIELDS = {
+  user: 'username',
+  phone: 'mobile',
+  status: 'enabled',
+};
+
+const API_TO_GRID_SORT_FIELDS = Object.entries(GRID_TO_API_SORT_FIELDS).reduce(
+  (fields, [gridField, apiField]) => ({
+    ...fields,
+    [apiField]: gridField,
+  }),
+  {},
+);
 
 function Users() {
   const { t } = useTranslation();
@@ -29,6 +47,8 @@ function Users() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [userFormOpen, setUserFormOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [resetPasswordUser, setResetPasswordUser] = useState(null);
 
   const page = Number(searchParams.get('page') || 0);
   const pageSize = Number(searchParams.get('size') || 10);
@@ -36,15 +56,35 @@ function Users() {
   const userType = searchParams.get('userType') || 'ALL';
   const accessChannel = searchParams.get('accessChannel') || 'ALL';
   const status = searchParams.get('status') || 'ALL';
+  const inventoryDomains = searchParams.get('inventoryDomains') || '';
+  const sortBy = searchParams.get('sortBy') || 'id';
+  const sortOrder = searchParams.get('sortOrder') || 'desc';
+
+  const sortModel = useMemo(() => {
+    if (sortBy === 'id') {
+      return [];
+    }
+
+    return [{ field: API_TO_GRID_SORT_FIELDS[sortBy] || sortBy, sort: sortOrder === 'asc' ? 'asc' : 'desc' }];
+  }, [sortBy, sortOrder]);
 
 
 
-
-  const usersQuery = useUsersQuery({page,pageSize,search, userType, accessChannel, status, });
+  const usersQuery = useUsersQuery({page,pageSize,search, userType, accessChannel, status, inventoryDomains, sortBy, sortOrder, });
 
   const createUserMutation = useCreateUserMutation({
-    onSuccess: () => setUserFormOpen(false),
+    onSuccess: () => closeUserForm(),
   });
+
+  const updateUserMutation = useUpdateUserMutation({
+    onSuccess: () => closeUserForm(),
+  });
+
+  const resetUserPasswordMutation = useResetUserPasswordMutation({
+    onSuccess: () => setResetPasswordUser(null),
+  });
+
+  const setUserActiveMutation = useSetUserActiveMutation();
 
   const rows = useMemo(() => {
     return normalizeRows(usersQuery.data).map((row, index) => ({
@@ -61,6 +101,50 @@ function Users() {
     setSearchParams(next, { replace: true });
   };
 
+  const updateSortParams = (model) => {
+    const next = new URLSearchParams(searchParams);
+    const [sort] = model;
+
+    if (!sort?.field || !sort?.sort) {
+      next.set('sortBy', 'id');
+      next.set('sortOrder', 'desc');
+    } else {
+      next.set('sortBy', GRID_TO_API_SORT_FIELDS[sort.field] || sort.field);
+      next.set('sortOrder', sort.sort);
+    }
+
+    next.set('page', '0');
+    setSearchParams(next, { replace: true });
+  };
+
+  const closeUserForm = () => {
+    setUserFormOpen(false);
+    setSelectedUser(null);
+  };
+
+  const openCreateForm = () => {
+    setSelectedUser(null);
+    setUserFormOpen(true);
+  };
+
+  const openEditForm = (row) => {
+    setSelectedUser(row);
+    setUserFormOpen(true);
+  };
+
+  const handleToggleStatus = async (row) => {
+    const nextActive = !isUserActive(row);
+    const actionLabel = nextActive ? 'enable' : 'disable';
+
+    const confirmed = window.confirm(`Are you sure you want to ${actionLabel} this user?`);
+    if (!confirmed) return;
+
+    await setUserActiveMutation.mutateAsync({
+      id: row.id,
+      active: nextActive,
+    });
+  };
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -69,13 +153,13 @@ function Users() {
       auth,
       isMobile,
       onEdit: (row) => {
-        console.log('Edit user:', row);
+        openEditForm(row);
       },
       onResetPassword: (row) => {
-        console.log('Reset password:', row);
+        setResetPasswordUser(row);
       },
       onToggleStatus: (row) => {
-        console.log('Toggle status:', row);
+        handleToggleStatus(row);
       },
     });
 
@@ -156,7 +240,7 @@ function Users() {
             <Button
               variant="contained"
               startIcon={<AddRoundedIcon />}
-              onClick={() => setUserFormOpen(true)}
+              onClick={openCreateForm}
               sx={{ minWidth: 0 }}
             >
               Add User
@@ -167,9 +251,9 @@ function Users() {
 
       <UserMetrics data={usersQuery.data} rows={rows} />
 
-      {usersQuery.isError && (
+      {(usersQuery.isError || setUserActiveMutation.isError) && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          {usersQuery.error?.message || 'Unknown error'}
+          {usersQuery.error?.message || setUserActiveMutation.error?.message || 'Unknown error'}
         </Alert>
       )}
 
@@ -195,9 +279,10 @@ function Users() {
               density={isMobile ? 'compact' : 'standard'}
               rows={rows}
               columns={columns}
-              loading={usersQuery.isLoading || usersQuery.isFetching}
+              loading={usersQuery.isLoading || usersQuery.isFetching || setUserActiveMutation.isPending}
               disableRowSelectionOnClick
               paginationMode="server"
+              sortingMode="server"
               rowCount={getTotalElements(usersQuery.data)}
               pageSizeOptions={[10, 25, 50, 100]}
               paginationModel={{
@@ -205,6 +290,8 @@ function Users() {
                 pageSize,
               }}
               onPaginationModelChange={updatePaginationParams}
+              sortModel={sortModel}
+              onSortModelChange={updateSortParams}
               sx={{
                 minHeight: 420,
                 width: '100%',
@@ -231,10 +318,27 @@ function Users() {
 
       <UserFormDrawer
         open={userFormOpen}
-        onClose={() => setUserFormOpen(false)}
-        onSubmit={(payload) => createUserMutation.mutateAsync(payload)}
-        loading={createUserMutation.isPending}
-        error={createUserMutation.error?.message}
+        mode={selectedUser ? 'edit' : 'create'}
+        initialData={selectedUser}
+        onClose={closeUserForm}
+        onSubmit={(payload) => {
+          if (selectedUser) {
+            return updateUserMutation.mutateAsync({ id: selectedUser.id, payload });
+          }
+
+          return createUserMutation.mutateAsync(payload);
+        }}
+        loading={createUserMutation.isPending || updateUserMutation.isPending}
+        error={createUserMutation.error?.message || updateUserMutation.error?.message}
+      />
+
+      <ResetUserPasswordDialog
+        open={Boolean(resetPasswordUser)}
+        user={resetPasswordUser}
+        onClose={() => setResetPasswordUser(null)}
+        onSubmit={(payload) => resetUserPasswordMutation.mutateAsync({ id: resetPasswordUser.id, ...payload })}
+        loading={resetUserPasswordMutation.isPending}
+        error={resetUserPasswordMutation.error?.message}
       />
     </Box>
   );

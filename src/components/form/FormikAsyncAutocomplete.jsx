@@ -29,7 +29,6 @@ function FormikAsyncAutocomplete({
   queryFn,
   disabled = false,
   multiple = false,
-  required = false,
   debounceMs = 400,
   minSearchLength = 0,
   extraParams = {},
@@ -165,7 +164,6 @@ function FormikAsyncAutocomplete({
           <TextField
             {...params}
             label={label}
-            required={required}
             error={hasError}
             helperText={hasError ? error : helperText}
             onBlur={() => formik.setFieldTouched(name, true)}
