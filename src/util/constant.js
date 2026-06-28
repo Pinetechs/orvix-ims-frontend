@@ -9,8 +9,8 @@ export const apiRoute = {
 
   companies: '/api/companies',
   users: '/api/users',
-  inventoryTasks: '/api/inventory-tasks',
-  vehicleInventory: '/api/inventory/vehicles',
+  inventoryTasks: '/api/inventory/tasks',
+  vehicleInventory: '/api/inventory/vehicle',
   reports: '/api/reports',
 };
 

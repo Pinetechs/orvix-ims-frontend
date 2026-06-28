@@ -15,5 +15,8 @@ export const queryKeys = {
   inventoryTasks: {
     all: ['inventory-tasks'],
     list: (params) => ['inventory-tasks', 'list', params],
+    details: (id) => ['inventory-tasks', 'details', id],
+    vehicleItemsAll: (taskId) => ['inventory-tasks', 'details', taskId, 'vehicle-items'],
+    vehicleItems: (taskId, params) => ['inventory-tasks', 'details', taskId, 'vehicle-items', params],
   },
 };
