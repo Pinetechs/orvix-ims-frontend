@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { uploadVehicleInventoryExcel } from '../../../services/inventoryTaskService.js';
+import { uploadVehicleInventoryExcel } from '../../../services/vehicleInventoryService.js';
 import { queryClient } from '../../../services/queryClient.js';
 import { queryKeys } from '../../../services/queryKeys.js';
 

@@ -92,9 +92,29 @@ export const INVENTORY_DOMAIN_CHIP_CONFIG = {
 };
 
 export const INVENTORY_TASK_STATUS_CHIP_CONFIG = {
+  CREATED: {
+    label: 'Created',
+    color: 'info',
+  },
   DRAFT: {
     label: 'Draft',
     color: 'default',
+  },
+  IMPORT_PENDING: {
+    label: 'Import Pending',
+    color: 'info',
+  },
+  IMPORT_IN_PROGRESS: {
+    label: 'Import In Progress',
+    color: 'warning',
+  },
+  IMPORT_FAILED: {
+    label: 'Import Failed',
+    color: 'error',
+  },
+  IMPORT_COMPLETED: {
+    label: 'Import Completed',
+    color: 'success',
   },
   READY_FOR_ASSIGNMENT: {
     label: 'Ready For Assignment',
@@ -107,6 +127,10 @@ export const INVENTORY_TASK_STATUS_CHIP_CONFIG = {
   IN_PROGRESS: {
     label: 'In Progress',
     color: 'warning',
+  },
+  PAUSED: {
+    label: 'Paused',
+    color: 'default',
   },
   UNDER_REVIEW: {
     label: 'Under Review',

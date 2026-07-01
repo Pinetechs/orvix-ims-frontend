@@ -1,10 +1,7 @@
 export const normalizeRows = (data) => {
-  if (Array.isArray(data)) return data;
+ 
   if (Array.isArray(data?.content)) return data.content;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.content)) return data.data.content;
-  if (Array.isArray(data?.result)) return data.result;
-  if (Array.isArray(data?.result?.content)) return data.result.content;
+ 
   return [];
 };
 
@@ -28,14 +25,12 @@ export const getTaskName = (row = {}) => row?.taskName || row?.name || row?.titl
 export const getTaskNumber = (row = {}) => row?.taskNumber || row?.code || row?.number || '-';
 
 export const getCompanyName = (row = {}) => {
-  return row.company?.name || row.company?.nameEn || row?.companyName || row?.company?.code || '-';
-};
+  return   row?.companyCode +"-" + row?.companyName;
 
+}
 export const getCreatedByName = (row = {}) => {
-  const firstName = row.createdBy?.firstName || '';
-  const lastName = row.createdBy?.lastName || '';
-  const fullName = `${firstName} ${lastName}`.trim();
-  return fullName || row.createdByName || row.createdBy?.username || '-';
+ 
+  return row?.createBy || '';
 };
 
 export const formatDateTime = (value) => {
@@ -57,25 +52,38 @@ export const formatDateTime = (value) => {
 };
 
 export const getProgressPercent = (row = {}) => {
-  const planned = Number(row.plannedRecords ?? row.totalRecords ?? 0);
-  const scanned = Number(row.scannedRecords ?? 0);
-
-  if (!planned || planned <= 0) return 0;
-
-  return Math.min(100, Math.round((scanned / planned) * 100));
+  
+  return row?.progress
 };
 
 export const getImportSummary = (data) => {
   const source = unwrapResponseData(data) || {};
+  const errors = Array.isArray(source.errors) ? source.errors : [];
 
   return {
-    plannedRecords: source.plannedRecords ?? source.totalRecords ?? source.savedRecords ?? source.importedRecords ?? 0,
-    savedRecords: source.savedRecords ?? source.importedRecords ?? source.plannedRecords ?? 0,
-    duplicateRecords: source.duplicateRecords ?? source.duplicates ?? 0,
-    invalidRecords: source.invalidRecords ?? source.errorsCount ?? source.errorRecords ?? 0,
+    plannedRecords:
+      source.plannedRecords ??
+      source.totalRecords ??
+      source.totalRows ??
+      source.savedRecords ??
+      source.importedRows ??
+      source.importedItems ??
+      source.importedRecords ??
+      0,
+    savedRecords:
+      source.savedRecords ??
+      source.importedRows ??
+      source.importedItems ??
+      source.importedRecords ??
+      source.plannedRecords ??
+      0,
+    duplicateRecords: source.duplicatedVinCount ?? source.duplicateRecords ?? source.duplicates ?? 0,
+    invalidRecords: source.invalidRecords ?? source.errorsCount ?? source.errorRecords ?? errors.length ?? 0,
     locationCount: source.locationCount ?? source.locationsCount ?? source.createdLocationCount ?? 0,
     storeNoCount: source.storeNoCount ?? source.stStoreNoCount ?? source.storeNosCount ?? source.createdStoreNoCount ?? 0,
     locations: source.locations ?? source.locationCount ?? source.createdLocations ?? 0,
+    storeNos: source.storeNos ?? source.storeNoList ?? source.stStoreNos ?? [],
+    errors,
     message: source.message || data?.message || '',
   };
 };

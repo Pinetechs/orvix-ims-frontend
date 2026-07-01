@@ -1,7 +1,12 @@
 import React from 'react'
-import { QueryMultiSelectMenu, QuerySearchField, QuerySelectField } from '../../../components/search'
+import { QueryAsyncAutocompleteField, QuerySearchField, QuerySelectField } from '../../../components/search'
 import { Box } from '@mui/material'
-import { USER_TYPE_OPTIONS , ACCESS_CHANNEL_OPTIONS,STATUS_OPTIONS, INVENTORY_DOMAIN_OPTIONS} from '../constants/userOptions'
+import { ACCESS_CHANNEL_OPTIONS, STATUS_OPTIONS } from '../constants/userOptions'
+import { getLookupInventoryDomains, getLookupUserTypes } from '../../../services/lookupsServices'
+import { queryKeys } from '../../../services/queryKeys'
+
+const INVENTORY_DOMAIN_LOOKUP_PARAMS = { size: 20 };
+const USER_TYPE_LOOKUP_PARAMS = { size: 20 };
 
 export default function SearchUserCard() {
   return (
@@ -26,12 +31,15 @@ export default function SearchUserCard() {
                 sx={{ width: '100%', minWidth: 0, gridColumn: { xs: '1', sm: '1 / -1', lg: 'auto' } }}
               />
 
-              <QuerySelectField
+              <QueryAsyncAutocompleteField
                 paramName="userType"
                 label="User Type"
-                allLabel="All Types"
-                minWidth={210}
-                options={USER_TYPE_OPTIONS}
+                placeholder="All Types"
+                queryKey={queryKeys.lookups.userTypes(USER_TYPE_LOOKUP_PARAMS)}
+                queryFn={getLookupUserTypes}
+                parentParams={USER_TYPE_LOOKUP_PARAMS}
+                optionValueKey="value"
+                optionLabelKeys={['label']}
                 sx={{ width: '100%', minWidth: 0 }}
               />
 
@@ -53,13 +61,17 @@ export default function SearchUserCard() {
                 sx={{ width: '100%', minWidth: 0 }}
               />
 
-              <QueryMultiSelectMenu
-                title="Domains"
-                queryParam="inventoryDomains"
-                allLabel="All Domains"
-                options={INVENTORY_DOMAIN_OPTIONS}
-                buttonProps={{ sx: { width: '100%', minWidth: 0, justifyContent: 'space-between' } }}
-                menuWidth={300}
+              <QueryAsyncAutocompleteField
+                multiple
+                paramName="inventoryDomains"
+                label="Domains"
+                placeholder="All Domains"
+                queryKey={queryKeys.lookups.inventoryDomains(INVENTORY_DOMAIN_LOOKUP_PARAMS)}
+                queryFn={getLookupInventoryDomains}
+                parentParams={INVENTORY_DOMAIN_LOOKUP_PARAMS}
+                optionValueKey="value"
+                optionLabelKeys={['label']}
+                sx={{ width: '100%', minWidth: 0 }}
               />
             </Box>
           </Box>

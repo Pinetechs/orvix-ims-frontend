@@ -10,43 +10,25 @@ export const getInventoryTasks = async (params = {}) => {
   }
 };
 
+export const getInventoryTask = async (taskId) => {
+  if (!taskId) {
+    return null;
+  }
+
+  try {
+    const response = await apiClient.get(`${apiRoute.inventoryTasks}/${taskId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to load inventory task'));
+  }
+};
+
 export const createInventoryTask = async (payload) => {
   try {
     const response = await apiClient.post(apiRoute.inventoryTasks, payload);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, 'Could not create inventory task'));
-  }
-};
-
-export const uploadVehicleInventoryExcel = async ({ taskId, file }) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await apiClient.post(`${apiRoute.vehicleInventory}/${taskId}/import`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-
-    return response.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, 'Could not upload vehicle inventory Excel file'));
-  }
-};
-
-export const getVehicleInventoryItems = async ({ taskId, page = 0, size = 10, sort } = {}) => {
-  if (!taskId) {
-    return { content: [], totalElements: 0, number: page, size };
-  }
-
-  try {
-    const response = await apiClient.get(`${apiRoute.inventoryTasks}/${taskId}/vehicles/items`, {
-      params: cleanRequestParams({ page, size, sort }),
-    });
-
-    return response.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load uploaded vehicle inventory records'));
   }
 };
 

@@ -9,8 +9,10 @@ function FormikStaticAutocomplete({
   options = [],
   disabled = false,
   multiple = false,
+  required = false,
   helperText,
   getOptionLabel,
+  onValueChange,
   ...props
 }) {
   const rawValue = getIn(formik.values, name) ?? (multiple ? [] : '');
@@ -37,11 +39,22 @@ function FormikStaticAutocomplete({
 
   const handleChange = (_, nextValue) => {
     if (multiple) {
-      formik.setFieldValue(name, nextValue.map(resolveOptionValue));
+      const nextValues = nextValue.map(resolveOptionValue);
+      formik.setFieldValue(name, nextValues);
+
+      if (onValueChange) {
+        onValueChange(nextValues);
+      }
+
       return;
     }
 
-    formik.setFieldValue(name, resolveOptionValue(nextValue));
+    const nextResolvedValue = resolveOptionValue(nextValue);
+    formik.setFieldValue(name, nextResolvedValue);
+
+    if (onValueChange) {
+      onValueChange(nextResolvedValue);
+    }
   };
 
   return (
@@ -57,6 +70,7 @@ function FormikStaticAutocomplete({
         <TextField
           {...params}
           label={label}
+          required={required}
           error={hasError}
           helperText={hasError ? error : helperText}
           onBlur={() => formik.setFieldTouched(name, true)}

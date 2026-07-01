@@ -1,48 +1,91 @@
 import React from 'react';
 import { Box } from '@mui/material';
 
-import { QuerySearchField, QuerySelectField } from '../../../components/search/index.js';
-import { INVENTORY_DOMAIN_OPTIONS, INVENTORY_TASK_STATUS_OPTIONS } from '../constants/inventoryTaskOptions.js';
+import { QueryAsyncAutocompleteField, QuerySearchField } from '../../../components/search/index.js';
+import {
+  getLookupCompanies,
+  getLookupInventoryDomains,
+  getLookupTaskStatuses,
+} from '../../../services/lookupsServices.js';
+import { queryKeys } from '../../../services/queryKeys.js';
+
+const COMPANY_LOOKUP_PARAMS = { active: true, size: 20, sort: 'name,asc' };
+const INVENTORY_DOMAIN_LOOKUP_PARAMS = { size: 20 };
+const TASK_STATUS_LOOKUP_PARAMS = { size: 20 };
+
+const fieldSx = {
+  width: '100%',
+  minWidth: 0,
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 2,
+    bgcolor: 'background.paper',
+    transition: 'box-shadow 160ms ease, border-color 160ms ease',
+    '&:hover': {
+      boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06)',
+    },
+    '&.Mui-focused': {
+      boxShadow: '0 0 0 3px rgba(25, 118, 210, 0.10)',
+    },
+  },
+};
 
 function SearchInventoryTaskCard() {
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2.4 } }}>
+    <Box sx={{ p: { xs: 1.25, sm: 2 }, bgcolor: 'rgba(248, 250, 252, 0.72)' }}>
       <Box
         sx={{
           display: 'grid',
           gridTemplateColumns: {
             xs: 'minmax(0, 1fr)',
             sm: 'repeat(2, minmax(0, 1fr))',
-            lg: 'minmax(260px, 1fr) 190px 220px',
+            lg: 'minmax(320px, 1.45fr) minmax(210px, 0.85fr) minmax(170px, 0.65fr) minmax(190px, 0.75fr)',
           },
-          gap: 1.5,
+          gap: 1.25,
           alignItems: 'center',
           minWidth: 0,
         }}
       >
         <QuerySearchField
           paramName="search"
-          placeholder="Search by task name, number or company..."
+          placeholder="Search by task name or number..."
           updateOnEnterOnly
-          sx={{ width: '100%', minWidth: 0, gridColumn: { xs: '1', sm: '1 / -1', lg: 'auto' } }}
+          sx={fieldSx}
         />
 
-        <QuerySelectField
+        <QueryAsyncAutocompleteField
+          paramName="companyId"
+          label="Company"
+          placeholder="All Companies"
+          queryKey={queryKeys.lookups.companies(COMPANY_LOOKUP_PARAMS)}
+          queryFn={getLookupCompanies}
+          parentParams={COMPANY_LOOKUP_PARAMS}
+          optionValueKey="value"
+          optionLabelKeys={['label']}
+          sx={fieldSx}
+        />
+
+        <QueryAsyncAutocompleteField
           paramName="inventoryDomain"
           label="Domain"
-          allLabel="All Domains"
-          minWidth={190}
-          options={INVENTORY_DOMAIN_OPTIONS}
-          sx={{ width: '100%', minWidth: 0 }}
+          placeholder="All Domains"
+          queryKey={queryKeys.lookups.inventoryDomains(INVENTORY_DOMAIN_LOOKUP_PARAMS)}
+          queryFn={getLookupInventoryDomains}
+          parentParams={INVENTORY_DOMAIN_LOOKUP_PARAMS}
+          optionValueKey="value"
+          optionLabelKeys={['label']}
+          sx={fieldSx}
         />
 
-        <QuerySelectField
+        <QueryAsyncAutocompleteField
           paramName="status"
           label="Status"
-          allLabel="All Statuses"
-          minWidth={220}
-          options={INVENTORY_TASK_STATUS_OPTIONS}
-          sx={{ width: '100%', minWidth: 0 }}
+          placeholder="All Statuses"
+          queryKey={queryKeys.lookups.taskStatuses(TASK_STATUS_LOOKUP_PARAMS)}
+          queryFn={getLookupTaskStatuses}
+          parentParams={TASK_STATUS_LOOKUP_PARAMS}
+          optionValueKey="value"
+          optionLabelKeys={['label']}
+          sx={fieldSx}
         />
       </Box>
     </Box>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Autocomplete,
   CircularProgress,
@@ -32,32 +32,90 @@ function FormikAsyncAutocomplete({
   debounceMs = 400,
   minSearchLength = 0,
   extraParams = {},
-  optionLabelKeys = ['name'],
+  lookup = false,
+  valueMode = 'option',
+  optionValueKey,
+  optionLabelKeys,
+  getOptionValue,
   getOptionLabel,
   isOptionEqualToValue,
   dialogComponent = null,
   dialogOptionLabel = 'Advanced Search...',
   onChange,
   helperText,
+  required = false,
 }) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const selectedOptionCache = useRef(new Map());
 
+  const resolvedOptionValueKey = optionValueKey || (lookup ? 'value' : 'id');
+  const resolvedOptionLabelKeys = optionLabelKeys || (lookup ? ['label'] : ['name']);
   const debouncedInputValue = useDebouncedValue(inputValue, debounceMs);
 
-  const value = getIn(formik.values, name) ?? (multiple ? [] : null);
+  const rawValue = getIn(formik.values, name) ?? (multiple ? [] : null);
   const touched = getIn(formik.touched, name);
   const error = getIn(formik.errors, name);
   const hasError = Boolean(touched && error);
+  const queryKeyParts = Array.isArray(queryKey) ? queryKey : [queryKey];
+
+  const resolveOptionValue = (option) => {
+    if (option === undefined || option === null) return '';
+
+    if (typeof option !== 'object') {
+      return String(option);
+    }
+
+    if (getOptionValue) {
+      return String(getOptionValue(option) ?? '');
+    }
+
+    return String(option?.[resolvedOptionValueKey] ?? '');
+  };
+
+  const resolveOptionLabel = (option) => {
+    if (!option) return '';
+
+    if (typeof option !== 'object') {
+      return String(option);
+    }
+
+    if (getOptionLabel) {
+      return getOptionLabel(option);
+    }
+
+    const label = resolvedOptionLabelKeys
+      .map((key) => option?.[key])
+      .filter(Boolean)
+      .join(' - ');
+
+    return label || resolveOptionValue(option);
+  };
+
+  const selectedIds = useMemo(() => {
+    if (valueMode === 'value') {
+      return multiple
+        ? (Array.isArray(rawValue) ? rawValue : []).map((item) => String(item))
+        : rawValue
+          ? [String(rawValue)]
+          : [];
+    }
+
+    return multiple
+      ? (Array.isArray(rawValue) ? rawValue : []).map(resolveOptionValue).filter(Boolean)
+      : rawValue
+        ? [resolveOptionValue(rawValue)].filter(Boolean)
+        : [];
+  }, [multiple, rawValue, valueMode, resolvedOptionValueKey, getOptionValue]);
 
   const enabled =
-    open &&
     !disabled &&
+    (open || (valueMode === 'value' && selectedIds.length > 0)) &&
     debouncedInputValue.trim().length >= minSearchLength;
 
   const query = useQuery({
-    queryKey: [...queryKey, debouncedInputValue, extraParams],
+    queryKey: [...queryKeyParts, debouncedInputValue, extraParams],
     queryFn: () =>
       queryFn({
         search: debouncedInputValue,
@@ -84,29 +142,100 @@ function FormikAsyncAutocomplete({
     ];
   }, [query.data, dialogComponent, dialogOptionLabel]);
 
-  const resolveOptionLabel = (option) => {
-    if (!option) return '';
+  useEffect(() => {
+    options.forEach((option) => {
+      const id = resolveOptionValue(option);
 
-    if (typeof option === 'string') {
-      return option;
+      if (id) {
+        selectedOptionCache.current.set(id, option);
+      }
+    });
+  }, [options, resolvedOptionValueKey, getOptionValue]);
+
+  useEffect(() => {
+    if (valueMode === 'value') return;
+
+    const selectedOptions = multiple ? (Array.isArray(rawValue) ? rawValue : []) : [rawValue];
+
+    selectedOptions.forEach((option) => {
+      const id = resolveOptionValue(option);
+
+      if (id) {
+        selectedOptionCache.current.set(id, option);
+      }
+    });
+  }, [multiple, rawValue, valueMode, resolvedOptionValueKey, getOptionValue]);
+
+  const buildFallbackOption = (id) => ({
+    [resolvedOptionValueKey]: id,
+    [resolvedOptionLabelKeys[0]]: id,
+  });
+
+  const value = useMemo(() => {
+    if (valueMode === 'option') {
+      return rawValue;
     }
 
-    if (getOptionLabel) {
-      return getOptionLabel(option);
+    if (multiple) {
+      return selectedIds.map((id) => {
+        return (
+          options.find((option) => resolveOptionValue(option) === id) ||
+          selectedOptionCache.current.get(id) ||
+          buildFallbackOption(id)
+        );
+      });
     }
 
-    return optionLabelKeys
-      .map((key) => option?.[key])
-      .filter(Boolean)
-      .join(' - ');
-  };
+    const id = selectedIds[0];
+
+    if (!id) {
+      return null;
+    }
+
+    return (
+      options.find((option) => resolveOptionValue(option) === id) ||
+      selectedOptionCache.current.get(id) ||
+      buildFallbackOption(id)
+    );
+  }, [
+    multiple,
+    options,
+    rawValue,
+    resolvedOptionLabelKeys,
+    resolvedOptionValueKey,
+    selectedIds,
+    valueMode,
+    getOptionValue,
+  ]);
 
   const resolveOptionEqual = (option, selectedValue) => {
     if (isOptionEqualToValue) {
       return isOptionEqualToValue(option, selectedValue);
     }
 
-    return option?.id === selectedValue?.id;
+    return resolveOptionValue(option) === resolveOptionValue(selectedValue);
+  };
+
+  const toFieldValue = (nextValue) => {
+    if (valueMode === 'option') {
+      return nextValue;
+    }
+
+    if (multiple) {
+      return (nextValue || []).map(resolveOptionValue).filter(Boolean);
+    }
+
+    return nextValue ? resolveOptionValue(nextValue) : '';
+  };
+
+  const commitValue = (nextValue) => {
+    const fieldValue = toFieldValue(nextValue);
+
+    if (onChange) {
+      onChange(fieldValue, nextValue);
+    } else {
+      formik.setFieldValue(name, fieldValue);
+    }
   };
 
   const handleChange = (_, nextValue) => {
@@ -119,11 +248,7 @@ function FormikAsyncAutocomplete({
       return;
     }
 
-    if (onChange) {
-      onChange(nextValue);
-    } else {
-      formik.setFieldValue(name, nextValue);
-    }
+    commitValue(nextValue);
   };
 
   const renderedDialog = React.isValidElement(dialogComponent)
@@ -131,12 +256,7 @@ function FormikAsyncAutocomplete({
         open: dialogOpen,
         onClose: () => setDialogOpen(false),
         onSelect: (selectedValue) => {
-          if (onChange) {
-            onChange(selectedValue);
-          } else {
-            formik.setFieldValue(name, selectedValue);
-          }
-
+          commitValue(selectedValue);
           setDialogOpen(false);
         },
       })
@@ -181,10 +301,12 @@ function FormikAsyncAutocomplete({
           />
         )}
         renderOption={(props, option) => {
+          const { key, ...optionProps } = props;
+
           if (option?._dialogTrigger) {
             return (
               <li
-                {...props}
+                {...optionProps}
                 key={`${name}-${DIALOG_OPTION_ID}`}
                 onMouseDown={(event) => event.preventDefault()}
                 style={{
@@ -198,8 +320,10 @@ function FormikAsyncAutocomplete({
             );
           }
 
+          const optionValue = resolveOptionValue(option);
+
           return (
-            <li {...props} key={option.id}>
+            <li {...optionProps} key={`${name}-${optionValue || key}`}>
               {resolveOptionLabel(option)}
             </li>
           );

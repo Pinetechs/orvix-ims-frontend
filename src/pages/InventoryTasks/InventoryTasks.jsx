@@ -13,8 +13,8 @@ import { useInventoryTasksQuery } from './hooks/useInventoryTasksQuery.js';
 import SearchInventoryTaskCard from './components/SearchInventoryTaskCard.jsx';
 import InventoryTaskMetrics from './components/InventoryTaskMetrics.jsx';
 import CreateInventoryTaskDialog from './CreateInventoryTaskDialog.jsx';
-import { createInventoryTaskTableColumns } from './utils/inventoryTaskTableColumns.jsx';
-import { getTotalElements, normalizeRows } from './utils/inventoryTaskMappers.js';
+import { createInventoryTaskTableColumns, isInventoryTaskResumable } from './utils/inventoryTaskTableColumns.jsx';
+import { getTaskId, getTotalElements, normalizeRows } from './utils/inventoryTaskMappers.js';
 
 const VIEW_PERMISSIONS = ['VEHICLE_TASK_VIEW', 'ASSET_TASK_VIEW', 'SPARE_PART_TASK_VIEW'];
 const CREATE_PERMISSIONS = ['VEHICLE_TASK_CREATE', 'ASSET_TASK_CREATE', 'SPARE_PART_TASK_CREATE'];
@@ -40,10 +40,12 @@ function InventoryTasks() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [resumeTaskId, setResumeTaskId] = useState(null);
 
   const page = Number(searchParams.get('page') || 0);
   const pageSize = Number(searchParams.get('size') || 10);
   const search = searchParams.get('search') || '';
+  const companyId = searchParams.get('companyId') || '';
   const inventoryDomain = searchParams.get('inventoryDomain') || 'ALL';
   const status = searchParams.get('status') || 'ALL';
   const sortBy = searchParams.get('sortBy') || 'id';
@@ -61,6 +63,7 @@ function InventoryTasks() {
     page,
     size: pageSize,
     search,
+    companyId,
     inventoryDomain,
     status,
     sortBy,
@@ -69,13 +72,19 @@ function InventoryTasks() {
 
   const rows = useMemo(() => {
     return normalizeRows(inventoryTasksQuery.data).map((row, index) => ({
-      id: row.id ?? row.taskId ?? row.taskNumber ?? index + 1,
+      id: row.id ,
       ...row,
     }));
   }, [inventoryTasksQuery.data]);
 
   const columns = useMemo(() => {
-    const allColumns = createInventoryTaskTableColumns({ isMobile });
+    const allColumns = createInventoryTaskTableColumns({
+      isMobile,
+      onResumeTask: (taskId) => {
+        setResumeTaskId(taskId);
+        setCreateDialogOpen(true);
+      },
+    });
 
     if (!isMobile) {
       return allColumns;
@@ -110,9 +119,22 @@ function InventoryTasks() {
 
   const handleCloseCreateDialog = (shouldRefresh = false) => {
     setCreateDialogOpen(false);
+    setResumeTaskId(null);
     if (shouldRefresh) {
       inventoryTasksQuery.refetch();
     }
+  };
+
+  const handleCreateTask = () => {
+    setResumeTaskId(null);
+    setCreateDialogOpen(true);
+  };
+
+  const handleResumeTask = (row) => {
+    if (!isInventoryTaskResumable(row)) return;
+
+    setResumeTaskId(getTaskId(row));
+    setCreateDialogOpen(true);
   };
 
   if (!auth.hasPermission(VIEW_PERMISSIONS)) {
@@ -185,7 +207,7 @@ function InventoryTasks() {
             <Button
               variant="contained"
               startIcon={<AddRoundedIcon />}
-              onClick={() => setCreateDialogOpen(true)}
+              onClick={handleCreateTask}
               sx={{ minWidth: 0 }}
             >
               Create Task
@@ -205,9 +227,9 @@ function InventoryTasks() {
       <Card
         elevation={0}
         sx={(muiTheme) => ({
-          borderRadius: 4,
-          border: `1px solid ${alpha(muiTheme.palette.primary.main, 0.1)}`,
-          boxShadow: `0 18px 45px ${alpha(muiTheme.palette.common.black, 0.06)}`,
+          borderRadius: 2,
+          border: `1px solid ${alpha(muiTheme.palette.primary.main, 0.12)}`,
+          boxShadow: `0 12px 34px ${alpha(muiTheme.palette.common.black, 0.055)}`,
           overflow: 'hidden',
           maxWidth: '100%',
         })}
@@ -220,7 +242,9 @@ function InventoryTasks() {
           <Box sx={{ width: '100%', maxWidth: '100%', overflowX: 'auto' }}>
             <DataGrid
               autoHeight
-              density={isMobile ? 'compact' : 'standard'}
+              density="standard"
+              rowHeight={isMobile ? 66 : 72}
+              columnHeaderHeight={52}
               rows={rows}
               columns={columns}
               loading={inventoryTasksQuery.isLoading || inventoryTasksQuery.isFetching}
@@ -236,11 +260,13 @@ function InventoryTasks() {
               onPaginationModelChange={updatePaginationParams}
               sortModel={sortModel}
               onSortModelChange={updateSortParams}
+              onRowDoubleClick={(params) => handleResumeTask(params.row)}
               sx={{
                 minHeight: 440,
                 width: '100%',
                 minWidth: isMobile ? 0 : 900,
                 border: 0,
+                bgcolor: 'background.paper',
                 '& .MuiDataGrid-main': {
                   minWidth: 0,
                 },
@@ -248,11 +274,31 @@ function InventoryTasks() {
                   overflowX: 'auto',
                 },
                 '& .MuiDataGrid-columnHeaders': {
+                  bgcolor: 'rgba(248, 250, 252, 0.95)',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.28)',
                   fontWeight: 900,
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 900,
+                  color: 'text.primary',
+                },
+                '& .MuiDataGrid-row': {
+                  transition: 'background-color 140ms ease',
+                },
+                '& .MuiDataGrid-row:hover': {
+                  bgcolor: 'rgba(25, 118, 210, 0.035)',
                 },
                 '& .MuiDataGrid-cell': {
                   display: 'flex',
                   alignItems: 'center',
+                  borderColor: 'rgba(148, 163, 184, 0.22)',
+                  py: 1,
+                },
+                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                  outline: 'none',
+                },
+                '& .MuiTablePagination-root': {
+                  borderTop: '1px solid rgba(148, 163, 184, 0.22)',
                 },
               }}
             />
@@ -262,6 +308,7 @@ function InventoryTasks() {
 
       <CreateInventoryTaskDialog
         open={createDialogOpen}
+        taskId={resumeTaskId}
         onClose={handleCloseCreateDialog}
       />
     </Box>

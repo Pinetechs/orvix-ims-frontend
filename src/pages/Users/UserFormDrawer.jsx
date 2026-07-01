@@ -21,15 +21,18 @@ import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
 
 import FormikTextField from '../../components/form/FormikTextField.jsx';
 import FormikPasswordField, { isPasswordValid } from '../../components/form/FormikPasswordField.jsx';
-import FormikSelect from '../../components/form/FormikSelect.jsx';
 import FormikAsyncAutocomplete from '../../components/form/FormikAsyncAutocomplete.jsx';
-import FormikStaticAutocomplete from '../../components/form/FormikStaticAutocomplete.jsx';
-import { getCompanies } from '../../services/companyService.js';
+import {
+  getLookupCompanies,
+  getLookupInventoryDomains,
+  getLookupUserTypes,
+} from '../../services/lookupsServices.js';
 import { queryKeys } from '../../services/queryKeys.js';
-import { USER_TYPE_OPTIONS as USER_TYPES, INVENTORY_DOMAIN_OPTIONS } from './constants/userOptions.js';
 import { isUserActive } from './utils/userMappers.js';
 
-
+const COMPANY_LOOKUP_PARAMS = { active: true, page: 0, size: 20, sort: 'name,asc' };
+const INVENTORY_DOMAIN_LOOKUP_PARAMS = { size: 50 };
+const USER_TYPE_LOOKUP_PARAMS = { size: 50 };
 
 const initialValues = {username: '', password: '', confirmPassword: '',firstName: '',lastName: '',email: '',phone: '',userType: 'INVENTORY_STAFF',companies: [], inventoryDomains: [],enabled: true,};
 
@@ -72,13 +75,24 @@ const createValidationSchema = (isEditMode) => Yup.object({
 
 const getInitialCompanies = (initialData) => {
   if (Array.isArray(initialData?.companies)) {
-    return initialData.companies;
+    return initialData.companies.map((company) => {
+      const value = typeof company === 'object' ? company.value ?? company.id ?? company.companyId : company;
+      const label =
+        typeof company === 'object'
+          ? company.label || [company.name, company.code].filter(Boolean).join(' - ') || String(value ?? '')
+          : String(company ?? '');
+
+      return {
+        value: String(value ?? ''),
+        label,
+      };
+    });
   }
 
   if (Array.isArray(initialData?.companyIds)) {
     return initialData.companyIds.map((id, index) => ({
-      id,
-      name: Array.isArray(initialData.companyNames) ? initialData.companyNames[index] : String(id),
+      value: String(id),
+      label: Array.isArray(initialData.companyNames) ? initialData.companyNames[index] : String(id),
     }));
   }
 
@@ -123,7 +137,7 @@ function UserFormDrawer({open, mode = 'create', initialData = null, onClose,  on
         mobile: values.phone?.trim() || null,
         userType: values.userType,
         enabled: values.enabled,
-        companyIds: companyRequired ? values.companies.map((company) => company.id) : [],
+        companyIds: companyRequired ? values.companies.map((company) => company.value).filter(Boolean) : [],
         inventoryDomains: requiresInventoryDomains(values.userType) ? values.inventoryDomains : [],
       };
 
@@ -315,17 +329,10 @@ function UserFormDrawer({open, mode = 'create', initialData = null, onClose,  on
               label={companyRequired ? 'Companies *' : 'Companies'}
               multiple
               disabled={loading || !companyRequired}
-              queryKey={queryKeys.companies.autocomplete({ active: true, page: 0, size: 20, sort: 'name,asc' })}
-              queryFn={(params) =>
-                getCompanies({
-                  search: params.search,
-                  active: true,
-                  page: 0,
-                  size: 20,
-                  sort: 'name,asc',
-                })
-              }
-              optionLabelKeys={['name', 'code']}
+              queryKey={queryKeys.lookups.companies(COMPANY_LOOKUP_PARAMS)}
+              queryFn={getLookupCompanies}
+              extraParams={COMPANY_LOOKUP_PARAMS}
+              lookup
               helperText={
                 companyRequired
                   ? 'Required for company admin, supervisor and inventory staff.'
@@ -333,25 +340,33 @@ function UserFormDrawer({open, mode = 'create', initialData = null, onClose,  on
               }
             />
 
-            <FormikSelect
+            <FormikAsyncAutocomplete
               formik={formik}
               name="userType"
               label="User Type"
-              options={USER_TYPES}
+              queryKey={queryKeys.lookups.userTypes(USER_TYPE_LOOKUP_PARAMS)}
+              queryFn={getLookupUserTypes}
+              extraParams={USER_TYPE_LOOKUP_PARAMS}
               disabled={loading}
               required
-              onValueChange={handleUserTypeChange}
+              lookup
+              valueMode="value"
+              onChange={handleUserTypeChange}
             />
 
             {inventoryDomainsRequired && (
-              <FormikStaticAutocomplete
+              <FormikAsyncAutocomplete
                 formik={formik}
                 name="inventoryDomains"
                 label="Inventory Domains"
-                options={INVENTORY_DOMAIN_OPTIONS}
+                queryKey={queryKeys.lookups.inventoryDomains(INVENTORY_DOMAIN_LOOKUP_PARAMS)}
+                queryFn={getLookupInventoryDomains}
+                extraParams={INVENTORY_DOMAIN_LOOKUP_PARAMS}
                 multiple
                 disabled={loading}
                 required
+                lookup
+                valueMode="value"
                 helperText="Required for supervisor users."
               />
             )}

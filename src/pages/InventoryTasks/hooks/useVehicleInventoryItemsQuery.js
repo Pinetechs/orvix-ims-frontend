@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getVehicleInventoryItems } from '../../../services/inventoryTaskService.js';
+import { getVehicleInventoryItems } from '../../../services/vehicleInventoryService.js';
 import { queryKeys } from '../../../services/queryKeys.js';
 
 export function useVehicleInventoryItemsQuery({ taskId, page = 0, size = 10, enabled = true } = {}) {

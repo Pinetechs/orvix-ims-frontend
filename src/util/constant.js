@@ -11,7 +11,9 @@ export const apiRoute = {
   users: '/api/users',
   inventoryTasks: '/api/inventory/tasks',
   vehicleInventory: '/api/inventory/vehicle',
+  backgroundJobs: '/api/background-jobs',
   reports: '/api/reports',
+  lookups: '/api/lookups',
 };
 
 export const storageKeys = {

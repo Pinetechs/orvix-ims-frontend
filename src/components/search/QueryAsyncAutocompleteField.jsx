@@ -25,6 +25,7 @@ function QueryAsyncAutocompleteField({
   multiple = false,
   optionValueKey = 'id',
   optionLabelKeys = ['name'],
+  getOptionValue,
   getOptionLabel,
   size = 'small',
   disabled = false,
@@ -43,7 +44,9 @@ function QueryAsyncAutocompleteField({
 
   const debouncedInputValue = useDebouncedValue(inputValue, debounceMs);
   const parentSignature = JSON.stringify(parentParams || {});
-  const firstParentRender = useRef(true);
+  const previousParentSignature = useRef(parentSignature);
+  const lastSyncedInputValue = useRef('');
+  const selectedOptionCache = useRef(new Map());
 
   const rawValue = searchParams.get(paramName);
   const selectedIds = useMemo(() => {
@@ -57,10 +60,11 @@ function QueryAsyncAutocompleteField({
   useEffect(() => {
     if (!clearWhenParentChanges) return;
 
-    if (firstParentRender.current) {
-      firstParentRender.current = false;
+    if (previousParentSignature.current === parentSignature) {
       return;
     }
+
+    previousParentSignature.current = parentSignature;
 
     const next = writeQueryParam(searchParams, paramName, multiple ? [] : '', {
       resetPage,
@@ -68,7 +72,16 @@ function QueryAsyncAutocompleteField({
     });
 
     setSearchParams(next, { replace: true });
-  }, [parentSignature]);
+  }, [
+    clearWhenParentChanges,
+    multiple,
+    pageParam,
+    paramName,
+    parentSignature,
+    resetPage,
+    searchParams,
+    setSearchParams,
+  ]);
 
   const enabled =
     !disabled &&
@@ -89,6 +102,10 @@ function QueryAsyncAutocompleteField({
   const options = useMemo(() => normalizeOptions(query.data), [query.data]);
 
   const resolveValue = (option) => {
+    if (getOptionValue) {
+      return String(getOptionValue(option) ?? '');
+    }
+
     return String(option?.[optionValueKey] ?? '');
   };
 
@@ -109,11 +126,22 @@ function QueryAsyncAutocompleteField({
       .join(' - ');
   };
 
+  useEffect(() => {
+    selectedIds.forEach((id) => {
+      const option = options.find((item) => resolveValue(item) === id);
+
+      if (option) {
+        selectedOptionCache.current.set(id, option);
+      }
+    });
+  }, [selectedIds, options, optionValueKey, getOptionValue]);
+
   const value = useMemo(() => {
     if (multiple) {
       return selectedIds.map((id) => {
         return (
-          options.find((option) => resolveValue(option) === id) || {
+          options.find((option) => resolveValue(option) === id) ||
+          selectedOptionCache.current.get(id) || {
             [optionValueKey]: id,
             [optionLabelKeys[0]]: id,
           }
@@ -128,16 +156,44 @@ function QueryAsyncAutocompleteField({
     }
 
     return (
-      options.find((option) => resolveValue(option) === id) || {
+      options.find((option) => resolveValue(option) === id) ||
+      selectedOptionCache.current.get(id) || {
         [optionValueKey]: id,
         [optionLabelKeys[0]]: id,
       }
     );
   }, [multiple, selectedIds, options, optionValueKey, optionLabelKeys]);
 
+  const selectedInputValue = useMemo(() => {
+    if (multiple || !value) {
+      return '';
+    }
+
+    return resolveLabel(value);
+  }, [multiple, value, getOptionLabel, optionLabelKeys]);
+
+  useEffect(() => {
+    if (multiple) return;
+
+    const canSyncInputValue = inputValue === '' || inputValue === lastSyncedInputValue.current;
+
+    if (!canSyncInputValue) return;
+
+    lastSyncedInputValue.current = selectedInputValue;
+    setInputValue(selectedInputValue);
+  }, [multiple, selectedInputValue]);
+
   const handleChange = (_, nextValue) => {
     if (multiple) {
       const values = (nextValue || []).map((item) => resolveValue(item)).filter(Boolean);
+
+      (nextValue || []).forEach((item) => {
+        const id = resolveValue(item);
+
+        if (id) {
+          selectedOptionCache.current.set(id, item);
+        }
+      });
 
       const next = writeQueryParam(searchParams, paramName, values, {
         resetPage,
@@ -149,6 +205,17 @@ function QueryAsyncAutocompleteField({
     }
 
     const nextValueId = nextValue ? resolveValue(nextValue) : '';
+
+    if (nextValueId) {
+      const nextLabel = resolveLabel(nextValue);
+
+      selectedOptionCache.current.set(nextValueId, nextValue);
+      lastSyncedInputValue.current = nextLabel;
+      setInputValue(nextLabel);
+    } else {
+      lastSyncedInputValue.current = '';
+      setInputValue('');
+    }
 
     const next = writeQueryParam(searchParams, paramName, nextValueId, {
       resetPage,
@@ -170,7 +237,7 @@ function QueryAsyncAutocompleteField({
       size={size}
       inputValue={inputValue}
       onInputChange={(_, nextInputValue, reason) => {
-        if (reason === 'input' || reason === 'clear') {
+        if (reason === 'input' || reason === 'clear' || reason === 'reset') {
           setInputValue(nextInputValue);
         }
       }}
