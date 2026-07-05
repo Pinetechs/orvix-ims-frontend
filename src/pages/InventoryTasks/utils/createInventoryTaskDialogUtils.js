@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
 
-export const steps = ['Task information', 'Inventory type', 'Upload Excel', 'Review', 'Staff & status'];
+export const steps = ['Task information', 'Inventory type', 'Upload Excel', 'Review', 'Staff & locations'];
 export const COMPANY_LOOKUP_PARAMS = { active: true, size: 20 };
-export const IMPORT_UPLOAD_STATUSES = new Set(['IMPORT_PENDING', 'IMPORT_IN_PROGRESS', 'IMPORT_FAILED']);
+export const IMPORT_UPLOAD_STATUSES = new Set(['IMPORT_PENDING', 'IMPORT_IN_PROGRESS']);
 export const IMPORT_COMPLETED_STATUS = 'IMPORT_COMPLETED';
 
 export const initialValues = {
@@ -12,6 +12,7 @@ export const initialValues = {
   inventoryDomain: 'VEHICLE',
   staff: [],
   closeAction: 'DRAFT',
+  locationAssignments: {},
 };
 
 export const validationSchema = Yup.object({
@@ -24,6 +25,7 @@ export const validationSchema = Yup.object({
   inventoryDomain: Yup.string().required('Inventory domain is required.'),
   staff: Yup.array(),
   closeAction: Yup.string().required('Final action is required.'),
+  locationAssignments: Yup.object(),
 });
 
 export const getCompanyLabel = (company = {}) => {
@@ -47,8 +49,6 @@ export const getTaskImportJobId = (task = {}) => {
 
 export const buildCompanyOption = (task = {}) => {
 
-
-  console.log('buildCompanyOption task:', task);
 
   const value = task.companyId ?? task.company?.value ?? task.company?.id ?? task.company?.companyId;
   const label =
@@ -79,15 +79,16 @@ export const buildInitialValuesFromTask = (task = {}) => ({
 
 // Keep backend status-to-step mapping here so resume behavior stays easy to audit.
 export const getResumeStep = (status) => {
+  if (status === 'READY_TO_START' || status === 'READY_FOR_ASSIGNMENT') return 4;
   if (status === IMPORT_COMPLETED_STATUS) return 3;
-  if (status === 'CREATED' || IMPORT_UPLOAD_STATUSES.has(status)) return 2;
+  if (status === 'CREATED' || status === 'IMPORT_FAILED' || IMPORT_UPLOAD_STATUSES.has(status)) return 2;
   return 0;
 };
 
 export const getUserLabel = (user = {}) => {
   if (!user) return '';
   const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-  return fullName || user.name || user.username || user.email || '';
+  return user.fullName || fullName || user.name || user.username || user.email || '';
 };
 
 export const getUserValue = (user = {}) => {
@@ -101,3 +102,45 @@ export const buildCreatePayload = (values) => ({
   companyId: values.company?.value ?? values.company?.id ?? values.company?.companyId,
   inventoryDomain: values.inventoryDomain,
 });
+
+
+export const getLocationValue = (location = {}) => {
+  return location.id ?? location.locationId ?? location.value;
+};
+
+export const getLocationLabel = (location = {}) => {
+  if (!location) return '';
+
+  const storeNo = location.storeNo || location.stStoreNo || location.code || '';
+  const locationName = location.locationName || location.name || location.label || '';
+  const totalItems = location.totalVehicles ?? location.totalAssets ?? location.totalItems ?? location.count ?? null;
+  const baseLabel = [storeNo, locationName].filter(Boolean).join(' - ');
+
+  if (totalItems !== null && totalItems !== undefined) {
+    return `${baseLabel || getLocationValue(location)} (${totalItems})`;
+  }
+
+  return baseLabel || String(getLocationValue(location) ?? '');
+};
+
+export const buildLocationAssignmentPayload = (values = {}) => {
+  const staff = Array.isArray(values.staff) ? values.staff : [];
+  const locationAssignments = values.locationAssignments || {};
+
+  return staff
+    .map((user) => {
+      const userId = getUserValue(user);
+      const locations = Array.isArray(locationAssignments[String(userId)])
+        ? locationAssignments[String(userId)]
+        : [];
+
+      return {
+        userId: Number(userId),
+        locationIds: locations
+          .map((location) => getLocationValue(location))
+          .filter((locationId) => locationId !== undefined && locationId !== null && locationId !== '')
+          .map(Number),
+      };
+    })
+    .filter((assignment) => assignment.userId);
+};

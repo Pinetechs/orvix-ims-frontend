@@ -2,27 +2,29 @@ import { useQuery } from '@tanstack/react-query';
 
 import { getBackgroundJob } from '../services/backgroundJobService.js';
 import { queryKeys } from '../services/queryKeys.js';
-import { unwrapBackgroundJobResponse, getBackgroundJobStatus } from '../services/backgroundJobUtils.js';
 
-const TERMINAL_STATUSES = ['COMPLETED', 'FAILED', 'CANCELLED'];
+const TERMINAL_STATUSES = ['COMPLETED', 'FAILED', 'CANCELLED', 'IMPORT_FAILED', 'IMPORT_COMPLETED'];
 
-export function useBackgroundJobQuery(jobId, { enabled = true, intervalMs = 2000 } = {}) {
+export function useBackgroundJobQuery(jobId, { enabled = true, intervalMs = 2000 , polling = true } = {}) {
   return useQuery({
     queryKey: queryKeys.backgroundJobs.details(jobId),
     queryFn: () => getBackgroundJob(jobId),
     enabled: Boolean(jobId) && enabled,
     refetchInterval: (query) => {
-      const job = unwrapBackgroundJobResponse(query.state.data);
-      const status = getBackgroundJobStatus(job);
+      const status = query.state?.data?.status
 
-      if (!status) {
+      if (!polling) {
+        return false;
+      }
+    if (!status) {
         return intervalMs;
       }
 
       if (TERMINAL_STATUSES.includes(status)) {
         return false;
       }
-
+  
+      
       return intervalMs;
     },
     placeholderData: (previousData) => previousData,

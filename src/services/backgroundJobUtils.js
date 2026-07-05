@@ -1,36 +1,19 @@
-export const unwrapBackgroundJobResponse = (data) => data 
 
-export const getBackgroundJobId = (data) => {
   
-  return  data?.jobId 
-};
-
-export const getBackgroundJobStatus = (data) => {
   
-  return data?.status 
-};
 
-export const getBackgroundJobProgress = (data) => {
-  const progress = Number(data.progress ?? 0);
 
-  if (!Number.isFinite(progress)) {
-    return 0;
-  }
 
-  return Math.min(100, Math.max(0, progress));
-};
 
-export const getBackgroundJobMessage = (data) => {
-  return data?.message;
-};
 
-export const getBackgroundJobErrorMessage = (data) => {
-  return data?.errorMessage ;
-}
+
+
 
 export const parseBackgroundJobResult = (data) => {
- 
-  const result = data?.result;
+
+
+
+  const result = data?.result 
 
   if (!result) {
     return null;

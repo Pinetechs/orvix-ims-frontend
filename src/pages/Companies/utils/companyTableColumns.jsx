@@ -13,8 +13,7 @@ import {
   isCompanyActive,
 } from './companyMappers.js';
 
-export const createCompanyTableColumns = ({
-  auth,
+export const createCompanyTableColumns = ({  auth,
   isMobile,
   onEdit,
   onToggleStatus,

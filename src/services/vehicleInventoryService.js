@@ -31,3 +31,46 @@ export const getVehicleInventoryItems = async ({ taskId, page = 0, size = 10, so
     throw new Error(getErrorMessage(error, 'Failed to load uploaded vehicle inventory records'));
   }
 };
+
+
+export const getVehicleInventoryLocations = async ({ taskId } = {}) => {
+  if (!taskId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get(`${apiRoute.vehicleInventory}/${taskId}/locations`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to load vehicle inventory locations'));
+  }
+};
+
+
+
+export const getInventoryVehicleTaskAssignments = async (taskId) => {
+  if (!taskId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get(`${apiRoute.vehicleInventory}/${taskId}/assignments`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to load inventory task assignments'));
+  }
+};
+
+
+export const assignInventoryVehicleTaskStaff = async ({ taskId, userIds = [], locationAssignments = [], taskStatus = null }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.vehicleInventory}/${taskId}/assignments`, {
+      userIds,
+      locationAssignments,
+      taskStatus,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not assign inventory staff and locations'));
+  }
+};

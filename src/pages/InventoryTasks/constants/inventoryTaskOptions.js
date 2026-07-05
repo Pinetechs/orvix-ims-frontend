@@ -31,9 +31,5 @@ export const TASK_CLOSE_ACTION_OPTIONS = [
     label: 'Ready to Start',
     description: 'The task is prepared and assigned, but the team starts it later.',
   },
-  {
-    value: 'START_NOW',
-    label: 'Start Now',
-    description: 'The task moves to in-progress immediately after creation.',
-  },
+  
 ];

@@ -5,7 +5,19 @@ import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import HourglassTopRoundedIcon from '@mui/icons-material/HourglassTopRounded';
 import PendingActionsRoundedIcon from '@mui/icons-material/PendingActionsRounded';
 
-import { getBackgroundJobErrorMessage, getBackgroundJobMessage,getBackgroundJobProgress,  getBackgroundJobStatus, unwrapBackgroundJobResponse,} from '../../services/backgroundJobUtils.js';
+
+
+ const getBackgroundJobProgress = (data) => {
+  const source = data 
+  const progress = Number(source.progress ?? 0);
+
+  if (!Number.isFinite(progress)) {
+    return 0;
+  }
+
+  return Math.min(100, Math.max(0, progress));
+};
+
 
 const STATUS_CONFIG = {
   PENDING: {
@@ -41,9 +53,8 @@ const STATUS_CONFIG = {
 };
 
 function BackgroundJobProgress({job,loading = false,error = null,title = 'Background job',emptyText = 'Waiting for the background job to start...',}) {
-  const source = unwrapBackgroundJobResponse(job);
+  const source = job;
 
-  console.log('BackgroundJobProgress source:', source);
 
   if (loading && !source) {
     return (
@@ -64,10 +75,10 @@ function BackgroundJobProgress({job,loading = false,error = null,title = 'Backgr
     return null;
   }
 
-  const status = getBackgroundJobStatus(job) || 'PENDING';
+  const status = job?.status || 'PENDING';
   const progress = getBackgroundJobProgress(job);
-  const message = getBackgroundJobMessage(job);
-  const errorMessage = getBackgroundJobErrorMessage(job);
+  const message = job?.message ;
+  const errorMessage = job?.errorMessage 
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.PENDING;
 
   return (

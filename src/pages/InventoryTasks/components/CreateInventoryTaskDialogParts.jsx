@@ -40,7 +40,7 @@ export const inventoryDomainCards = [
     subtitle: 'Fixed asset inventory by branch, department or physical location.',
     icon: WarehouseRoundedIcon,
     accent: 'success',
-    note: 'Can be saved as Draft',
+    note: 'Excel import enabled',
   },
 ];
 
@@ -365,5 +365,106 @@ export const vehicleImportPreviewColumns = [
     minWidth: 115,
     flex: 0.75,
     valueGetter: ({ row }) => row.darArtId || '-',
+  },
+];
+
+
+export const getAssetImportRowId = (row, index) =>
+  row.id ?? row.assetInventoryItemId ?? row.barcode ?? row.assetBarcode ?? row.BARCODE ?? `asset-row-${index}`;
+
+export const assetImportPreviewColumns = [
+  {
+    field: 'barcode',
+    headerName: 'Barcode',
+    minWidth: 145,
+    flex: 0.9,
+    valueGetter: ({ row }) => row.barcode || row.assetBarcode || row.BARCODE || '-',
+  },
+  {
+    field: 'description',
+    headerName: 'Description',
+    minWidth: 230,
+    flex: 1.45,
+    valueGetter: ({ row }) => row.description || row.assetDescription || row.DESCRIPTION || '-',
+  },
+  {
+    field: 'assetCategory',
+    headerName: 'Category',
+    minWidth: 160,
+    flex: 1,
+    valueGetter: ({ row }) => row.assetCategory || row.category || row.ASSET_CATEGORY || '-',
+  },
+  {
+    field: 'assetType',
+    headerName: 'Type',
+    minWidth: 135,
+    flex: 0.9,
+    valueGetter: ({ row }) => row.assetType || row.type || row.ASSET_TYPE || '-',
+  },
+  {
+    field: 'plannedLocationName',
+    headerName: 'Location',
+    minWidth: 160,
+    flex: 1,
+    valueGetter: ({ row }) => row.plannedLocationName || row.locationName || row.location || row.LOCATION || '-',
+  },
+  {
+    field: 'plannedFloorName',
+    headerName: 'Floor',
+    minWidth: 125,
+    flex: 0.75,
+    valueGetter: ({ row }) => row.plannedFloorName || row.floorName || row.floor || row.FLOOR || '-',
+  },
+  {
+    field: 'plannedPlaceName',
+    headerName: 'Place',
+    minWidth: 150,
+    flex: 0.9,
+    valueGetter: ({ row }) => row.plannedPlaceName || row.placeName || row.place || row.PLACE || '-',
+  },
+  {
+    field: 'quantity',
+    headerName: 'Qty',
+    type: 'number',
+    minWidth: 80,
+    flex: 0.45,
+    valueGetter: ({ row }) => row.quantity ?? row.qty ?? '-',
+  },
+  {
+    field: 'bookValue',
+    headerName: 'Book Value',
+    type: 'number',
+    minWidth: 120,
+    flex: 0.75,
+    valueGetter: ({ row }) => row.bookValue ?? '-',
+  },
+  {
+    field: 'finalBookValue',
+    headerName: 'Final Book Value',
+    type: 'number',
+    minWidth: 145,
+    flex: 0.85,
+    valueGetter: ({ row }) => row.finalBookValue ?? '-',
+  },
+  {
+    field: 'assetCondition',
+    headerName: 'Condition',
+    minWidth: 120,
+    flex: 0.75,
+    valueGetter: ({ row }) => row.assetCondition || row.status || row.condition || '-',
+  },
+  {
+    field: 'branchCode',
+    headerName: 'Branch',
+    minWidth: 100,
+    flex: 0.6,
+    valueGetter: ({ row }) => row.branchCode || row.branch || '-',
+  },
+  {
+    field: 'status',
+    headerName: 'Scan Status',
+    minWidth: 135,
+    flex: 0.8,
+    valueGetter: ({ row }) => row.status || row.scanStatus || 'NOT_SCANNED',
   },
 ];

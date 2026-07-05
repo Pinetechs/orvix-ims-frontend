@@ -25,8 +25,14 @@ export const getTaskName = (row = {}) => row?.taskName || row?.name || row?.titl
 export const getTaskNumber = (row = {}) => row?.taskNumber || row?.code || row?.number || '-';
 
 export const getCompanyName = (row = {}) => {
-  return   row?.companyCode +"-" + row?.companyName;
 
+
+  return row?.company?.name;
+
+}
+
+export const getCompanyCode = (row = {}) => {
+  return row?.company?.code;
 }
 export const getCreatedByName = (row = {}) => {
  
@@ -170,3 +176,178 @@ export const getVehicleImportStoreNos = (data) => {
 
   return getUniqueValuesFromRows(getVehicleImportRows(data), ['storeNo', 'stStoreNo', 'ST_STORE_NO', 'storeNumber']);
 };
+
+
+export const getVehicleInventoryLocations = (data) => {
+  const source = unwrapResponseData(data);
+
+  if (Array.isArray(source)) return source;
+  if (Array.isArray(source?.content)) return source.content;
+  if (Array.isArray(source?.data)) return source.data;
+  if (Array.isArray(source?.data?.content)) return source.data.content;
+  if (Array.isArray(source?.result)) return source.result;
+  if (Array.isArray(source?.result?.content)) return source.result.content;
+
+  return [];
+};
+
+export const getVehicleLocationId = (location = {}) => location.id ?? location.locationId ?? location.value;
+
+export const getInventoryTaskAssignments = (data) => {
+  const source = unwrapResponseData(data);
+
+  if (Array.isArray(source)) return source;
+  if (Array.isArray(source?.content)) return source.content;
+  if (Array.isArray(source?.data)) return source.data;
+  if (Array.isArray(source?.data?.content)) return source.data.content;
+  if (Array.isArray(source?.result)) return source.result;
+  if (Array.isArray(source?.result?.content)) return source.result.content;
+
+  return [];
+};
+
+export const buildAssignmentFormValues = (assignments = []) => {
+  const staff = [];
+  const locationAssignments = {};
+
+  assignments.forEach((assignment) => {
+    const userId = assignment.userId ?? assignment.user?.id ?? assignment.id;
+
+    if (!userId) return;
+
+    staff.push({
+      id: userId,
+      userId,
+      username: assignment.username,
+      fullName: assignment.fullName,
+      firstName: assignment.firstName,
+      lastName: assignment.lastName,
+      email: assignment.email,
+    });
+
+    locationAssignments[String(userId)] = getVehicleInventoryLocations(assignment.locations || assignment.locationAssignments);
+  });
+
+  return { staff, locationAssignments };
+};
+
+export const normalizeListResponse = (data) => {
+  const source = unwrapResponseData(data);
+
+  if (Array.isArray(source)) return source;
+  if (Array.isArray(source?.content)) return source.content;
+  if (Array.isArray(source?.data)) return source.data;
+  if (Array.isArray(source?.data?.content)) return source.data.content;
+  if (Array.isArray(source?.result)) return source.result;
+  if (Array.isArray(source?.result?.content)) return source.result.content;
+
+  return [];
+};
+
+export const getAssetImportRows = (data) => {
+  const source = normalizeImportSource(data);
+
+  const possibleSources = [
+    source.records,
+    source.items,
+    source.importedRecordsPage,
+    source.importedItems,
+    source.assetItems,
+    source.page,
+    source.preview,
+    source,
+  ];
+
+  for (const item of possibleSources) {
+    if (Array.isArray(item)) return item;
+    if (Array.isArray(item?.content)) return item.content;
+    if (Array.isArray(item?.data)) return item.data;
+    if (Array.isArray(item?.data?.content)) return item.data.content;
+    if (Array.isArray(item?.result)) return item.result;
+    if (Array.isArray(item?.result?.content)) return item.result.content;
+  }
+
+  return [];
+};
+
+export const getAssetImportTotalElements = (data) => {
+  const source = normalizeImportSource(data);
+
+  return (
+    source.records?.totalElements ??
+    source.items?.totalElements ??
+    source.importedRecordsPage?.totalElements ??
+    source.importedItems?.totalElements ??
+    source.assetItems?.totalElements ??
+    source.page?.totalElements ??
+    source.totalElements ??
+    getAssetImportRows(data).length
+  );
+};
+
+export const getAssetImportSummary = (data) => {
+  const source = unwrapResponseData(data) || {};
+  const errors = Array.isArray(source.errors) ? source.errors : [];
+
+  return {
+    plannedRecords:
+      source.plannedRecords ??
+      source.totalRecords ??
+      source.totalRows ??
+      source.importedRows ??
+      source.importedItems ??
+      source.savedRecords ??
+      0,
+    savedRecords:
+      source.savedRecords ??
+      source.importedItems ??
+      source.importedRows ??
+      source.importedRecords ??
+      source.plannedRecords ??
+      0,
+    duplicateRecords:
+      source.duplicatedBarcodeCount ??
+      source.duplicateBarcodeCount ??
+      source.duplicateRecords ??
+      source.duplicates ??
+      0,
+    invalidRecords: source.invalidRecords ?? source.errorsCount ?? source.errorRecords ?? errors.length ?? 0,
+    locationCount: source.locationCount ?? source.locationsCount ?? source.createdLocationCount ?? 0,
+    floorCount: source.floorCount ?? source.floorsCount ?? source.createdFloorCount ?? 0,
+    placeCount: source.placeCount ?? source.placesCount ?? source.createdPlaceCount ?? 0,
+    categoryCount: source.categoryCount ?? source.categoriesCount ?? source.createdCategoryCount ?? 0,
+    locations: source.locations ?? source.locationNames ?? source.createdLocations ?? [],
+    errors,
+    message: source.message || data?.message || '',
+  };
+};
+
+export const getAssetImportLocations = (data) => {
+  const source = normalizeImportSource(data);
+  const explicitValues = getListValue(source.locationsList || source.locations || source.locationNames || source.createdLocations);
+
+  if (explicitValues.length > 0) {
+    return Array.from(new Set(explicitValues.map((value) => String(value).trim()).filter(Boolean)));
+  }
+
+  return getUniqueValuesFromRows(getAssetImportRows(data), ['plannedLocationName', 'locationName', 'location', 'LOCATION']);
+};
+
+export const getAssetImportFloors = (data) => {
+  return getUniqueValuesFromRows(getAssetImportRows(data), ['plannedFloorName', 'floorName', 'floor', 'FLOOR']);
+};
+
+export const getAssetImportPlaces = (data) => {
+  return getUniqueValuesFromRows(getAssetImportRows(data), ['plannedPlaceName', 'placeName', 'place', 'PLACE']);
+};
+
+export const getAssetImportCategories = (data) => {
+  return getUniqueValuesFromRows(getAssetImportRows(data), ['assetCategory', 'category', 'ASSET_CATEGORY']);
+};
+
+export const getAssetInventoryLocations = (data) => normalizeListResponse(data);
+export const getAssetInventoryFloors = (data) => normalizeListResponse(data);
+export const getAssetInventoryPlaces = (data) => normalizeListResponse(data);
+export const getAssetInventoryCategories = (data) => normalizeListResponse(data);
+
+export const getAssetLocationId = (location = {}) => location.id ?? location.locationId ?? location.value;

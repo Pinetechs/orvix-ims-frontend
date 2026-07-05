@@ -23,6 +23,8 @@ export const getInventoryTask = async (taskId) => {
   }
 };
 
+
+
 export const createInventoryTask = async (payload) => {
   try {
     const response = await apiClient.post(apiRoute.inventoryTasks, payload);
@@ -32,14 +34,7 @@ export const createInventoryTask = async (payload) => {
   }
 };
 
-export const assignInventoryTaskStaff = async ({ taskId, userIds = [] }) => {
-  try {
-    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/assignments`, { userIds });
-    return response.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, 'Could not assign inventory staff'));
-  }
-};
+
 
 export const markInventoryTaskReadyToStart = async ({ taskId }) => {
   try {

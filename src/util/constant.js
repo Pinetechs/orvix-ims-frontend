@@ -11,6 +11,7 @@ export const apiRoute = {
   users: '/api/users',
   inventoryTasks: '/api/inventory/tasks',
   vehicleInventory: '/api/inventory/vehicle',
+  assetInventory: '/api/inventory/asset',
   backgroundJobs: '/api/background-jobs',
   reports: '/api/reports',
   lookups: '/api/lookups',

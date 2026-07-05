@@ -10,6 +10,7 @@ import {
 } from '../../../constants/enumChipConfigs.jsx';
 import {
   formatDateTime,
+  getCompanyCode,
   getCompanyName,
   getCreatedByName,
   getProgressPercent,
@@ -24,6 +25,9 @@ const RESUMABLE_STATUSES = new Set([
   'IMPORT_IN_PROGRESS',
   'IMPORT_FAILED',
   'IMPORT_COMPLETED',
+  'READY_FOR_ASSIGNMENT',
+  'READY_TO_START',
+  'DRAFT',
 ]);
 
 export const isInventoryTaskResumable = (row = {}) => RESUMABLE_STATUSES.has(row.status);
@@ -79,9 +83,21 @@ export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {})
     flex: 0.9,
     sortable: false,
     renderCell: (params) => (
-      <Typography sx={{ fontWeight: 760 }} noWrap>
-        {getCompanyName(params.row)}
-      </Typography>
+
+
+      <Stack spacing={0.45} alignItems="flex-start" justifyContent="center" sx={{ minWidth: 0, width: '100%', py: 0.5 }}>
+
+      
+      <Typography sx={{ fontWeight: 900, lineHeight: 1.25 }} noWrap>
+          {getCompanyName(params.row)}
+        </Typography>
+        <Typography color="text.secondary" sx={{ fontSize: '0.8rem' }} noWrap>
+          {getCompanyCode(params.row)}
+        </Typography>
+      
+      </Stack>
+
+
     ),
   },
   {
