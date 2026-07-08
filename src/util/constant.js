@@ -12,6 +12,7 @@ export const apiRoute = {
   inventoryTasks: '/api/inventory/tasks',
   vehicleInventory: '/api/inventory/vehicle',
   assetInventory: '/api/inventory/asset',
+  sparePartInventory: '/api/inventory/spare-part',
   backgroundJobs: '/api/background-jobs',
   reports: '/api/reports',
   lookups: '/api/lookups',

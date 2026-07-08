@@ -1,12 +1,14 @@
 import TaskInformationStep from '../components/create-task/common/TaskInformationStep.jsx';
 import InventoryTypeStep from '../components/create-task/common/InventoryTypeStep.jsx';
-import DomainNotImplementedStep from '../components/create-task/domain/DomainNotImplementedStep.jsx';
 import AssetReviewImportStep from '../components/create-task/asset/AssetReviewImportStep.jsx';
 import AssetStaffLocationsStep from '../components/create-task/asset/AssetStaffLocationsStep.jsx';
 import AssetUploadExcelStep from '../components/create-task/asset/AssetUploadExcelStep.jsx';
 import VehicleReviewImportStep from '../components/create-task/vehicle/VehicleReviewImportStep.jsx';
 import VehicleStaffLocationsStep from '../components/create-task/vehicle/VehicleStaffLocationsStep.jsx';
 import VehicleUploadExcelStep from '../components/create-task/vehicle/VehicleUploadExcelStep.jsx';
+import SparePartUploadExcelStep from '../components/create-task/sparepart/SparePartUploadExcelStep.jsx';
+import SparePartReviewImportStep from '../components/create-task/sparepart/SparePartReviewImportStep.jsx';
+import SparePartStaffBranchesStep from '../components/create-task/sparepart/SparePartStaffBranchesStep.jsx';
 
 export const COMMON_CREATE_TASK_STEPS = [
   {
@@ -68,10 +70,22 @@ export const DOMAIN_CREATE_TASK_STEPS = {
   ],
   SPARE_PART: [
     {
-      key: 'spare-part-not-implemented',
-      label: 'Spare part workflow',
-      subtitle: 'Spare part import workflow is not implemented yet.',
-      component: DomainNotImplementedStep,
+      key: 'spare-part-upload-excel',
+      label: 'Upload Excel',
+      subtitle: 'Upload the spare part stock Excel file and process it in the background.',
+      component: SparePartUploadExcelStep,
+    },
+    {
+      key: 'spare-part-review-import',
+      label: 'Review',
+      subtitle: 'Review imported spare parts, branches, cabinet/rack locations and brands.',
+      component: SparePartReviewImportStep,
+    },
+    {
+      key: 'spare-part-staff-branches',
+      label: 'Staff & branches',
+      subtitle: 'Assign inventory staff to imported spare part branches.',
+      component: SparePartStaffBranchesStep,
       final: true,
     },
   ],

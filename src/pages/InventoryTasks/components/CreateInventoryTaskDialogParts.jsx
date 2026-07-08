@@ -32,7 +32,7 @@ export const inventoryDomainCards = [
     subtitle: 'Warehouse and rack based inventory for parts stock counts.',
     icon: Inventory2RoundedIcon,
     accent: 'warning',
-    note: 'Can be saved as Draft',
+    note: 'Excel import enabled',
   },
   {
     value: 'ASSET',
@@ -466,5 +466,110 @@ export const assetImportPreviewColumns = [
     minWidth: 135,
     flex: 0.8,
     valueGetter: ({ row }) => row.status || row.scanStatus || 'NOT_SCANNED',
+  },
+];
+
+
+export const getSparePartImportRowId = (row, index) => {
+  const compoundKey = [
+    row.itemNo || row.itemNumber || row.ITEM_NO,
+    row.branchName || row.branch,
+    row.locationCode || row.locationName || row.location,
+  ]
+    .filter(Boolean)
+    .join('-');
+
+  return (row.id ?? row.sparePartInventoryItemId ?? compoundKey) || `spare-part-row-${index}`;
+};
+
+export const sparePartImportPreviewColumns = [
+  {
+    field: 'itemNo',
+    headerName: 'Item No',
+    minWidth: 160,
+    flex: 1,
+    valueGetter: ({ row }) => row.itemNo || row.itemNumber || row.ITEM_NO || row.barcode || '-',
+  },
+  {
+    field: 'brandName',
+    headerName: 'Brand',
+    minWidth: 120,
+    flex: 0.8,
+    valueGetter: ({ row }) => row.brandName || row.brand || row.BRAND || '-',
+  },
+  {
+    field: 'plannedBranchName',
+    headerName: 'Branch',
+    minWidth: 150,
+    flex: 0.95,
+    valueGetter: ({ row }) => row.plannedBranchName || row.branchName || row.branch || row.BRANCH || '-',
+  },
+  {
+    field: 'plannedLocationCode',
+    headerName: 'Location / Rack',
+    minWidth: 155,
+    flex: 1,
+    valueGetter: ({ row }) => row.plannedLocationCode || row.plannedLocationName || row.locationCode || row.locationName || row.location || row.LOCATION || '-',
+  },
+  {
+    field: 'qty',
+    headerName: 'QTY',
+    type: 'number',
+    minWidth: 90,
+    flex: 0.55,
+    valueGetter: ({ row }) => row.qty ?? row.quantity ?? row.QTY ?? '-',
+  },
+  {
+    field: 'stockQty',
+    headerName: 'STKQTY',
+    type: 'number',
+    minWidth: 105,
+    flex: 0.65,
+    valueGetter: ({ row }) => row.stockQty ?? row.stkQty ?? row.STKQTY ?? '-',
+  },
+  {
+    field: 'frozenQty',
+    headerName: 'FZQTY',
+    type: 'number',
+    minWidth: 95,
+    flex: 0.6,
+    valueGetter: ({ row }) => row.frozenQty ?? row.fzQty ?? row.FZQTY ?? '-',
+  },
+  {
+    field: 'actualQty',
+    headerName: 'Counted',
+    type: 'number',
+    minWidth: 100,
+    flex: 0.65,
+    valueGetter: ({ row }) => row.actualQty ?? row.countedQty ?? '-',
+  },
+  {
+    field: 'varianceQty',
+    headerName: 'Variance',
+    type: 'number',
+    minWidth: 105,
+    flex: 0.65,
+    valueGetter: ({ row }) => row.varianceQty ?? '-',
+  },
+  {
+    field: 'locationStatus',
+    headerName: 'Location Status',
+    minWidth: 150,
+    flex: 0.9,
+    valueGetter: ({ row }) => row.locationStatus || '-',
+  },
+  {
+    field: 'quantityStatus',
+    headerName: 'Qty Status',
+    minWidth: 135,
+    flex: 0.8,
+    valueGetter: ({ row }) => row.quantityStatus || '-',
+  },
+  {
+    field: 'status',
+    headerName: 'Status',
+    minWidth: 135,
+    flex: 0.8,
+    valueGetter: ({ row }) => row.status || row.scanResult || row.inventoryStatus || 'NOT_COUNTED',
   },
 ];

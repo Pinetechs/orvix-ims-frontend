@@ -144,3 +144,45 @@ export const buildLocationAssignmentPayload = (values = {}) => {
     })
     .filter((assignment) => assignment.userId);
 };
+
+
+export const getBranchValue = (branch = {}) => {
+  return branch.id ?? branch.branchId ?? branch.value;
+};
+
+export const getBranchLabel = (branch = {}) => {
+  if (!branch) return '';
+
+  const branchCode = branch.branchCode || branch.code || '';
+  const branchName = branch.branchName || branch.name || branch.label || branch.branch || '';
+  const totalItems = branch.totalItems ?? branch.totalRecords ?? branch.count ?? null;
+  const baseLabel = [branchCode, branchName].filter(Boolean).join(' - ');
+
+  if (totalItems !== null && totalItems !== undefined) {
+    return `${baseLabel || getBranchValue(branch)} (${totalItems})`;
+  }
+
+  return baseLabel || String(getBranchValue(branch) ?? '');
+};
+
+export const buildBranchAssignmentPayload = (values = {}) => {
+  const staff = Array.isArray(values.staff) ? values.staff : [];
+  const branchAssignments = values.branchAssignments || {};
+
+  return staff
+    .map((user) => {
+      const userId = getUserValue(user);
+      const branches = Array.isArray(branchAssignments[String(userId)])
+        ? branchAssignments[String(userId)]
+        : [];
+
+      return {
+        userId: Number(userId),
+        branchIds: branches
+          .map((branch) => getBranchValue(branch))
+          .filter((branchId) => branchId !== undefined && branchId !== null && branchId !== '')
+          .map(Number),
+      };
+    })
+    .filter((assignment) => assignment.userId);
+};

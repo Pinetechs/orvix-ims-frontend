@@ -351,3 +351,121 @@ export const getAssetInventoryPlaces = (data) => normalizeListResponse(data);
 export const getAssetInventoryCategories = (data) => normalizeListResponse(data);
 
 export const getAssetLocationId = (location = {}) => location.id ?? location.locationId ?? location.value;
+
+
+export const getSparePartImportRows = (data) => {
+  const source = normalizeImportSource(data);
+
+  const possibleSources = [
+    source.records,
+    source.items,
+    source.importedRecordsPage,
+    source.importedItems,
+    source.sparePartItems,
+    source.page,
+    source.preview,
+    source,
+  ];
+
+  for (const item of possibleSources) {
+    if (Array.isArray(item)) return item;
+    if (Array.isArray(item?.content)) return item.content;
+    if (Array.isArray(item?.data)) return item.data;
+    if (Array.isArray(item?.data?.content)) return item.data.content;
+    if (Array.isArray(item?.result)) return item.result;
+    if (Array.isArray(item?.result?.content)) return item.result.content;
+  }
+
+  return [];
+};
+
+export const getSparePartImportTotalElements = (data) => {
+  const source = normalizeImportSource(data);
+
+  return (
+    source.records?.totalElements ??
+    source.items?.totalElements ??
+    source.importedRecordsPage?.totalElements ??
+    source.importedItems?.totalElements ??
+    source.sparePartItems?.totalElements ??
+    source.page?.totalElements ??
+    source.totalElements ??
+    getSparePartImportRows(data).length
+  );
+};
+
+export const getSparePartImportSummary = (data) => {
+  const source = unwrapResponseData(data) || {};
+  const errors = Array.isArray(source.errors) ? source.errors : [];
+
+  return {
+    plannedRecords:
+      source.plannedRecords ??
+      source.totalRecords ??
+      source.totalRows ??
+      source.importedRows ??
+      source.importedItems ??
+      source.savedRecords ??
+      0,
+    savedRecords:
+      source.savedRecords ??
+      source.importedItems ??
+      source.importedRows ??
+      source.importedRecords ??
+      source.plannedRecords ??
+      0,
+    duplicateRecords:
+      source.duplicateItemLocationCount ??
+      source.duplicateRecords ??
+      source.duplicates ??
+      0,
+    invalidRecords: source.invalidRecords ?? source.errorsCount ?? source.errorRecords ?? errors.length ?? 0,
+    branchCount: source.branchCount ?? source.branchesCount ?? source.createdBranchCount ?? 0,
+    locationCount: source.locationCount ?? source.locationsCount ?? source.createdLocationCount ?? 0,
+    brandCount: source.brandCount ?? source.brandsCount ?? source.createdBrandCount ?? 0,
+    branches: source.branches ?? source.branchNames ?? source.createdBranches ?? [],
+    locations: source.locations ?? source.locationNames ?? source.createdLocations ?? [],
+    brands: source.brands ?? source.brandNames ?? source.createdBrands ?? [],
+    errors,
+    message: source.message || data?.message || '',
+  };
+};
+
+export const getSparePartImportBranches = (data) => {
+  const source = normalizeImportSource(data);
+  const explicitValues = getListValue(source.branchesList || source.branches || source.branchNames || source.createdBranches);
+
+  if (explicitValues.length > 0) {
+    return Array.from(new Set(explicitValues.map((value) => String(value).trim()).filter(Boolean)));
+  }
+
+  return getUniqueValuesFromRows(getSparePartImportRows(data), ['plannedBranchName', 'branchName', 'branch', 'BRANCH']);
+};
+
+export const getSparePartImportLocations = (data) => {
+  const source = normalizeImportSource(data);
+  const explicitValues = getListValue(source.locationsList || source.locations || source.locationNames || source.createdLocations);
+
+  if (explicitValues.length > 0) {
+    return Array.from(new Set(explicitValues.map((value) => String(value).trim()).filter(Boolean)));
+  }
+
+  return getUniqueValuesFromRows(getSparePartImportRows(data), ['plannedLocationCode', 'plannedLocationName', 'locationCode', 'locationName', 'location', 'LOCATION']);
+};
+
+export const getSparePartImportBrands = (data) => {
+  const source = normalizeImportSource(data);
+  const explicitValues = getListValue(source.brandsList || source.brands || source.brandNames || source.createdBrands);
+
+  if (explicitValues.length > 0) {
+    return Array.from(new Set(explicitValues.map((value) => String(value).trim()).filter(Boolean)));
+  }
+
+  return getUniqueValuesFromRows(getSparePartImportRows(data), ['brandName', 'brand', 'BRAND']);
+};
+
+export const getSparePartInventoryBranches = (data) => normalizeListResponse(data);
+export const getSparePartInventoryLocations = (data) => normalizeListResponse(data);
+export const getSparePartInventoryBrands = (data) => normalizeListResponse(data);
+
+export const getSparePartBranchId = (branch = {}) => branch.id ?? branch.branchId ?? branch.value;

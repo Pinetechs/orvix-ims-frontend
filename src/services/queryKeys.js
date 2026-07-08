@@ -36,6 +36,17 @@ export const queryKeys = {
     assignments: (taskId) => ['inventory-tasks', 'details', taskId, 'vehicle-assignments'],
     details: (id) => ['inventory-tasks', 'details', id],
   },
+
+  sparePartInventory: {
+    all: ['spare-part-inventory'],
+    sparePartItemsAll: (taskId) => ['inventory-tasks', 'details', taskId, 'spare-part-items'],
+    sparePartItems: (taskId, params) => ['inventory-tasks', 'details', taskId, 'spare-part-items', params],
+    sparePartBranches: (taskId) => ['inventory-tasks', 'details', taskId, 'spare-part-branches'],
+    sparePartLocations: (taskId, branchId) => ['inventory-tasks', 'details', taskId, 'spare-part-branches', branchId, 'locations'],
+    sparePartBrands: (taskId) => ['inventory-tasks', 'details', taskId, 'spare-part-brands'],
+    assignments: (taskId) => ['inventory-tasks', 'details', taskId, 'spare-part-assignments'],
+    details: (id) => ['inventory-tasks', 'details', id],
+  },
   assetInventory: {
     all: ['asset-inventory'],
     assetItemsAll: (taskId) => ['inventory-tasks', 'details', taskId, 'asset-items'],
