@@ -8,7 +8,7 @@ export const USER_TYPE_OPTIONS = [
 
 export const ACCESS_CHANNEL_OPTIONS = [
   { value: 'WEB', label: 'WEB' },
-  { value: 'MOBILE', label: 'APP' },
+  { value: 'APP', label: 'APP' },
   { value: 'BOTH', label: 'BOTH' },
 ];
 

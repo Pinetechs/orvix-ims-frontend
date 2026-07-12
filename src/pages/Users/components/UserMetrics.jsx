@@ -15,7 +15,7 @@ function UserMetrics({ data, rows }) {
       total: getTotalElements(data),
       active: rows.filter((row) => isUserActive(row)).length,
       disabled: rows.filter((row) => !isUserActive(row)).length,
-      appUsers: rows.filter((row) => ['APP', 'MOBILE', 'BOTH'].includes(row.accessChannel)).length,
+      appUsers: rows.filter((row) => ['APP', 'BOTH'].includes(row.accessChannel)).length,
     };
   }, [data, rows]);
 

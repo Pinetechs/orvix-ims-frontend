@@ -62,7 +62,7 @@ function SparePartStaffBranchesStep({ wizard }) {
       />
 
       <Alert severity="info">
-        Spare part assignment is intentionally by BRANCH only. Staff can be assigned to Bayader, Irbid or any imported branch, then choose the LOCATION cabinet/rack inside the mobile workflow.
+        Spare part assignment is intentionally by BRANCH only. Staff can be assigned to Bayader, Irbid or any imported branch, then choose the LOCATION cabinet/rack inside the app workflow.
       </Alert>
 
       <FormikAsyncAutocomplete
@@ -77,7 +77,7 @@ function SparePartStaffBranchesStep({ wizard }) {
         optionLabelKeys={['firstName', 'lastName', 'username']}
         getOptionValue={getUserValue}
         getOptionLabel={getUserLabel}
-        helperText="Only inventory staff users should be assigned to mobile counting tasks."
+        helperText="Only inventory staff users should be assigned to app counting tasks."
       />
 
       <ReviewPanel

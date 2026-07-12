@@ -62,7 +62,7 @@ function AssetStaffLocationsStep({ wizard }) {
       />
 
       <Alert severity="info">
-        Asset assignment is intentionally by Location only. Staff can be assigned to Amman, Irbid or any imported location, then choose Floor and Place inside the mobile workflow.
+        Asset assignment is intentionally by Location only. Staff can be assigned to Amman, Irbid or any imported location, then choose Floor and Place inside the app workflow.
       </Alert>
 
       <FormikAsyncAutocomplete
@@ -77,7 +77,7 @@ function AssetStaffLocationsStep({ wizard }) {
         optionLabelKeys={['firstName', 'lastName', 'username']}
         getOptionValue={getUserValue}
         getOptionLabel={getUserLabel}
-        helperText="Only inventory staff users should be assigned to mobile scanning tasks."
+        helperText="Only inventory staff users should be assigned to app scanning tasks."
       />
 
       <ReviewPanel

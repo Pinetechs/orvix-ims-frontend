@@ -24,7 +24,7 @@ export const TASK_CLOSE_ACTION_OPTIONS = [
   {
     value: 'DRAFT',
     label: 'Keep as Draft',
-    description: 'The task remains saved but not ready for mobile inventory work.',
+    description: 'The task remains saved but not ready for app inventory work.',
   },
   {
     value: 'READY_TO_START',

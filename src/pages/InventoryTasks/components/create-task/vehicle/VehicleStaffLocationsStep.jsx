@@ -77,7 +77,7 @@ function VehicleStaffLocationsStep({ wizard }) {
         optionLabelKeys={['firstName', 'lastName', 'username']}
         getOptionValue={getUserValue}
         getOptionLabel={getUserLabel}
-        helperText="Only inventory staff users should be assigned to mobile scanning tasks."
+        helperText="Only inventory staff users should be assigned to app scanning tasks."
       />
 
       <ReviewPanel

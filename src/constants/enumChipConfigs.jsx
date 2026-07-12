@@ -43,11 +43,6 @@ export const ACCESS_CHANNEL_CHIP_CONFIG = {
     icon: <PhoneAndroidOutlinedIcon />,
     variant: 'filled',
   },
-  MOBILE: {
-    label: 'APP',
-    icon: <PhoneAndroidOutlinedIcon />,
-    variant: 'filled',
-  },
   BOTH: {
     label: 'BOTH',
     icon: <AdminPanelSettingsOutlinedIcon />,
