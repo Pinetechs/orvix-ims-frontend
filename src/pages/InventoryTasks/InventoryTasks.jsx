@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
@@ -9,12 +9,24 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 
 import { useAuth } from '../../hooks/useAuth.js';
+import { useToast } from '../../hooks/useToast.js';
 import { useInventoryTasksQuery } from './hooks/useInventoryTasksQuery.js';
 import SearchInventoryTaskCard from './components/SearchInventoryTaskCard.jsx';
 import InventoryTaskMetrics from './components/InventoryTaskMetrics.jsx';
 import CreateInventoryTaskDialog from './CreateInventoryTaskDialog.jsx';
+import InventoryTaskScanSettingsDialog from './components/InventoryTaskScanSettingsDialog.jsx';
+import InventoryTaskReasonDialog from './components/InventoryTaskReasonDialog.jsx';
+import InventoryTaskDeleteDialog from './components/InventoryTaskDeleteDialog.jsx';
+import {
+  useCancelInventoryTaskMutation,
+  useDeleteInventoryTaskMutation,
+  usePauseInventoryTaskMutation,
+  useResumeInventoryTaskMutation,
+  useUpdateInventoryTaskScanSettingsMutation,
+} from './hooks/useInventoryTaskManagementMutations.js';
 import { createInventoryTaskTableColumns, isInventoryTaskResumable } from './utils/inventoryTaskTableColumns.jsx';
 import { getTaskId, getTotalElements, normalizeRows } from './utils/inventoryTaskMappers.js';
+import { canAssignInventoryTask, canUpdateInventoryTask } from './utils/inventoryTaskPermissions.js';
 
 const VIEW_PERMISSIONS = ['VEHICLE_TASK_VIEW', 'ASSET_TASK_VIEW', 'SPARE_PART_TASK_VIEW'];
 const CREATE_PERMISSIONS = ['VEHICLE_TASK_CREATE', 'ASSET_TASK_CREATE', 'SPARE_PART_TASK_CREATE'];
@@ -35,12 +47,22 @@ const API_TO_GRID_SORT_FIELDS = Object.entries(GRID_TO_API_SORT_FIELDS).reduce(
 function InventoryTasks() {
   const { t } = useTranslation();
   const auth = useAuth();
+  const toast = useToast();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [resumeTaskId, setResumeTaskId] = useState(null);
+  const [scanSettingsTask, setScanSettingsTask] = useState(null);
+  const [reasonDialog, setReasonDialog] = useState(null);
+  const [deleteDialogTask, setDeleteDialogTask] = useState(null);
+
+  const scanSettingsMutation = useUpdateInventoryTaskScanSettingsMutation();
+  const pauseMutation = usePauseInventoryTaskMutation();
+  const resumeMutation = useResumeInventoryTaskMutation();
+  const cancelMutation = useCancelInventoryTaskMutation();
+  const deleteMutation = useDeleteInventoryTaskMutation();
 
   const page = Number(searchParams.get('page') || 0);
   const pageSize = Number(searchParams.get('size') || 10);
@@ -71,18 +93,53 @@ function InventoryTasks() {
   });
 
   const rows = useMemo(() => {
-    return normalizeRows(inventoryTasksQuery.data).map((row, index) => ({
+    return normalizeRows(inventoryTasksQuery.data).map((row) => ({
       id: row.id ,
       ...row,
     }));
   }, [inventoryTasksQuery.data]);
 
+  const openAssignmentManager = useCallback((row) => {
+    setResumeTaskId(getTaskId(row));
+    setCreateDialogOpen(true);
+  }, []);
+
+  const handleResumeLifecycle = useCallback(async (row) => {
+    try {
+      await resumeMutation.mutateAsync({ taskId: getTaskId(row) });
+      toast.showSuccessToast('Inventory task resumed successfully.');
+    } catch (error) {
+      toast.showErrorToast(error.message || 'Could not resume inventory task.');
+    }
+  }, [resumeMutation, toast]);
+
   const columns = useMemo(() => {
     const allColumns = createInventoryTaskTableColumns({
+      auth,
       isMobile,
       onResumeTask: (taskId) => {
         setResumeTaskId(taskId);
         setCreateDialogOpen(true);
+      },
+      onEditScanSettings: (row) => {
+        scanSettingsMutation.reset();
+        setScanSettingsTask(row);
+      },
+      onManageAssignments: openAssignmentManager,
+      onPause: (row) => {
+        pauseMutation.reset();
+        cancelMutation.reset();
+        setReasonDialog({ action: 'pause', task: row });
+      },
+      onResume: handleResumeLifecycle,
+      onDelete: (row) => {
+        deleteMutation.reset();
+        setDeleteDialogTask(row);
+      },
+      onCancel: (row) => {
+        pauseMutation.reset();
+        cancelMutation.reset();
+        setReasonDialog({ action: 'cancel', task: row });
       },
     });
 
@@ -90,8 +147,17 @@ function InventoryTasks() {
       return allColumns;
     }
 
-    return allColumns.filter((column) => ['task', 'status', 'progress'].includes(column.field));
-  }, [isMobile]);
+    return allColumns.filter((column) => ['task', 'status', 'progress', 'actions'].includes(column.field));
+  }, [
+    auth,
+    cancelMutation,
+    deleteMutation,
+    handleResumeLifecycle,
+    isMobile,
+    openAssignmentManager,
+    pauseMutation,
+    scanSettingsMutation,
+  ]);
 
   const updatePaginationParams = (model) => {
     const next = new URLSearchParams(searchParams);
@@ -132,9 +198,51 @@ function InventoryTasks() {
 
   const handleResumeTask = (row) => {
     if (!isInventoryTaskResumable(row)) return;
+    const assignmentOnly = row.status === 'IN_PROGRESS' || row.status === 'PAUSED';
+    if (assignmentOnly && !canAssignInventoryTask(auth, row)) return;
+    if (!assignmentOnly && !canUpdateInventoryTask(auth, row) && !canAssignInventoryTask(auth, row)) return;
 
-    setResumeTaskId(getTaskId(row));
-    setCreateDialogOpen(true);
+    openAssignmentManager(row);
+  };
+
+  const handleSaveScanSettings = async (payload) => {
+    try {
+      await scanSettingsMutation.mutateAsync({
+        taskId: getTaskId(scanSettingsTask),
+        payload,
+      });
+      setScanSettingsTask(null);
+      toast.showSuccessToast('Scan settings updated successfully.');
+    } catch {
+      // The dialog displays the mutation error and remains open.
+    }
+  };
+
+  const handleReasonConfirm = async (reason) => {
+    const taskId = getTaskId(reasonDialog?.task);
+    const action = reasonDialog?.action;
+    try {
+      if (action === 'pause') {
+        await pauseMutation.mutateAsync({ taskId, reason });
+        toast.showSuccessToast('Inventory task paused successfully.');
+      } else {
+        await cancelMutation.mutateAsync({ taskId, reason });
+        toast.showSuccessToast('Inventory task cancelled and retained for audit.');
+      }
+      setReasonDialog(null);
+    } catch {
+      // The dialog displays the mutation error and remains open.
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteMutation.mutateAsync({ taskId: getTaskId(deleteDialogTask) });
+      setDeleteDialogTask(null);
+      toast.showSuccessToast('Test or incorrect task deleted permanently.');
+    } catch {
+      // The dialog displays the mutation error and remains open.
+    }
   };
 
   if (!auth.hasPermission(VIEW_PERMISSIONS)) {
@@ -310,6 +418,34 @@ function InventoryTasks() {
         open={createDialogOpen}
         taskId={resumeTaskId}
         onClose={handleCloseCreateDialog}
+      />
+
+      <InventoryTaskScanSettingsDialog
+        open={Boolean(scanSettingsTask)}
+        task={scanSettingsTask}
+        loading={scanSettingsMutation.isPending}
+        error={scanSettingsMutation.error?.message}
+        onClose={() => setScanSettingsTask(null)}
+        onSubmit={handleSaveScanSettings}
+      />
+
+      <InventoryTaskReasonDialog
+        open={Boolean(reasonDialog)}
+        task={reasonDialog?.task}
+        action={reasonDialog?.action}
+        loading={pauseMutation.isPending || cancelMutation.isPending}
+        error={pauseMutation.error?.message || cancelMutation.error?.message}
+        onClose={() => setReasonDialog(null)}
+        onConfirm={handleReasonConfirm}
+      />
+
+      <InventoryTaskDeleteDialog
+        open={Boolean(deleteDialogTask)}
+        task={deleteDialogTask}
+        loading={deleteMutation.isPending}
+        error={deleteMutation.error?.message}
+        onClose={() => setDeleteDialogTask(null)}
+        onConfirm={handleDeleteConfirm}
       />
     </Box>
   );

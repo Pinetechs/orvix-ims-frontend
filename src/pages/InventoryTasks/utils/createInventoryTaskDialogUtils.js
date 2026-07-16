@@ -10,6 +10,8 @@ export const initialValues = {
   description: '',
   company: null,
   inventoryDomain: 'VEHICLE',
+  scanImageRequired: true,
+  sparePartLocationProgressMode: 'BASIC',
   staff: [],
   closeAction: 'DRAFT',
   locationAssignments: {},
@@ -79,6 +81,7 @@ export const buildInitialValuesFromTask = (task = {}) => ({
 
 // Keep backend status-to-step mapping here so resume behavior stays easy to audit.
 export const getResumeStep = (status) => {
+  if (status === 'IN_PROGRESS' || status === 'PAUSED') return 4;
   if (status === 'READY_TO_START' || status === 'READY_FOR_ASSIGNMENT') return 4;
   if (status === IMPORT_COMPLETED_STATUS) return 3;
   if (status === 'CREATED' || status === 'IMPORT_FAILED' || IMPORT_UPLOAD_STATUSES.has(status)) return 2;
@@ -101,6 +104,18 @@ export const buildCreatePayload = (values) => ({
   description: values.description.trim(),
   companyId: values.company?.value ?? values.company?.id ?? values.company?.companyId,
   inventoryDomain: values.inventoryDomain,
+  scanImageRequired: values.scanImageRequired !== false,
+  sparePartLocationProgressMode:
+    values.inventoryDomain === 'SPARE_PART'
+      ? values.sparePartLocationProgressMode || 'BASIC'
+      : 'BASIC',
+});
+
+export const buildScanSettingsPayload = (values) => ({
+  scanImageRequired: values.scanImageRequired !== false,
+  ...(values.inventoryDomain === 'SPARE_PART'
+    ? { sparePartLocationProgressMode: values.sparePartLocationProgressMode || 'BASIC' }
+    : {}),
 });
 
 

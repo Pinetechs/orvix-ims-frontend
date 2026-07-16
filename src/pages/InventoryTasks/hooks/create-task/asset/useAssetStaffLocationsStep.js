@@ -29,6 +29,7 @@ import {
 } from '../../../forms/create-task/assetStaffLocationsForm.js';
 
 export function useAssetStaffLocationsStep({ wizard }) {
+  const assignmentOnlyMode = wizard.assignmentOnlyMode;
   const assetLocationsQuery = useAssetInventoryLocationsQuery({
     taskId: wizard.taskId,
     enabled: Boolean(wizard.taskId),
@@ -61,19 +62,19 @@ export function useAssetStaffLocationsStep({ wizard }) {
         .filter(Boolean);
 
       const locationAssignments = buildLocationAssignmentPayload(values);
-      const existingAssignmentCount = getInventoryTaskAssignments(assetAssignmentsQuery.data).length;
       const assetLocations = getAssetInventoryLocations(assetLocationsQuery.data);
       const assetLocationIds = assetLocations
         .map(getAssetLocationId)
         .filter((locationId) => locationId !== undefined && locationId !== null && locationId !== '');
+      const requiresCompleteCoverage = assignmentOnlyMode || values.closeAction !== 'DRAFT';
 
-      if (values.closeAction !== 'DRAFT' && userIds.length === 0 && existingAssignmentCount === 0) {
+      if (requiresCompleteCoverage && userIds.length === 0) {
         formik.setFieldTouched('staff', true);
         wizard.setLocalError('Please assign at least one inventory staff member before moving the task forward.');
         return;
       }
 
-      if (values.closeAction !== 'DRAFT' && userIds.length > 0) {
+      if (requiresCompleteCoverage && userIds.length > 0) {
         if (assetLocationsQuery.isLoading || assetLocationsQuery.isFetching) {
           wizard.setLocalError('Asset locations are still loading. Please wait a moment and try again.');
           return;
@@ -106,7 +107,12 @@ export function useAssetStaffLocationsStep({ wizard }) {
 
       try {
         if (userIds.length > 0) {
-          await assignAssetMutation.mutateAsync({ taskId: wizard.taskId, userIds, locationAssignments, taskStatus: values.closeAction });
+          await assignAssetMutation.mutateAsync({
+            taskId: wizard.taskId,
+            userIds,
+            locationAssignments,
+            taskStatus: assignmentOnlyMode ? wizard.taskStatus : values.closeAction,
+          });
         }
 
         if (values.closeAction === 'READY_TO_START') {
@@ -125,8 +131,14 @@ export function useAssetStaffLocationsStep({ wizard }) {
     },
   });
 
-  const selectedStaff = Array.isArray(formik.values.staff) ? formik.values.staff : [];
-  const locationAssignments = formik.values.locationAssignments || {};
+  const selectedStaff = useMemo(
+    () => (Array.isArray(formik.values.staff) ? formik.values.staff : []),
+    [formik.values.staff],
+  );
+  const locationAssignments = useMemo(
+    () => formik.values.locationAssignments || {},
+    [formik.values.locationAssignments],
+  );
   const assetLocations = useMemo(
     () => getAssetInventoryLocations(assetLocationsQuery.data),
     [assetLocationsQuery.data],
@@ -193,21 +205,23 @@ export function useAssetStaffLocationsStep({ wizard }) {
   }, [assetAssignmentsQuery.data, assetAssignmentsQuery.isLoading, assetAssignmentsQuery.isError]);
 
   useEffect(() => {
-    let label = 'Save Draft';
+    let label = assignmentOnlyMode ? 'Save Assignments' : 'Save Draft';
     let startIcon = React.createElement(SaveRoundedIcon);
 
-    if (formik.values.closeAction === 'READY_TO_START') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'READY_TO_START') {
       label = 'Mark Ready';
       startIcon = React.createElement(AssignmentRoundedIcon);
     }
 
-    if (formik.values.closeAction === 'START_NOW') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'START_NOW') {
       label = 'Start Task';
       startIcon = React.createElement(PlayArrowRoundedIcon);
     }
 
     wizard.setStepConfig({
-      subtitle: 'Assign inventory staff by asset locations. Staff will choose floor and place inside the Android app during scanning.',
+      subtitle: assignmentOnlyMode
+        ? 'Update the active staff and asset location distribution without changing task status.'
+        : 'Assign inventory staff by asset locations. Staff will choose floor and place inside the Android app during scanning.',
       canClose: !busy,
       closeBlocked: busy,
       closeConfirmMessage: null,
@@ -221,7 +235,7 @@ export function useAssetStaffLocationsStep({ wizard }) {
 
     return wizard.resetStepControls;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy, formik.values.closeAction, formik.values.staff, formik.values.locationAssignments]);
+  }, [assignmentOnlyMode, busy, formik.values.closeAction, formik.values.staff, formik.values.locationAssignments]);
 
   return {
     formik,

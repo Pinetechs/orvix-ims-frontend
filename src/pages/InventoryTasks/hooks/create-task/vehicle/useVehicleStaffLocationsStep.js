@@ -29,6 +29,7 @@ import {
 } from '../../../forms/create-task/vehicleStaffLocationsForm.js';
 
 export function useVehicleStaffLocationsStep({ wizard }) {
+  const assignmentOnlyMode = wizard.assignmentOnlyMode;
   const vehicleLocationsQuery = useVehicleInventoryLocationsQuery({
     taskId: wizard.taskId,
     enabled: Boolean(wizard.taskId),
@@ -63,19 +64,19 @@ export function useVehicleStaffLocationsStep({ wizard }) {
         .filter(Boolean);
 
       const locationAssignments = buildLocationAssignmentPayload(values);
-      const existingAssignmentCount = getInventoryTaskAssignments(vehicleAssignmentsQuery.data).length;
       const vehicleLocations = getVehicleInventoryLocations(vehicleLocationsQuery.data);
       const vehicleLocationIds = vehicleLocations
         .map(getVehicleLocationId)
         .filter((locationId) => locationId !== undefined && locationId !== null && locationId !== '');
+      const requiresCompleteCoverage = assignmentOnlyMode || values.closeAction !== 'DRAFT';
 
-      if (values.closeAction !== 'DRAFT' && userIds.length === 0 && existingAssignmentCount === 0) {
+      if (requiresCompleteCoverage && userIds.length === 0) {
         formik.setFieldTouched('staff', true);
         wizard.setLocalError('Please assign at least one inventory staff member before moving the task forward.');
         return;
       }
 
-      if (values.closeAction !== 'DRAFT' && userIds.length > 0) {
+      if (requiresCompleteCoverage && userIds.length > 0) {
         if (vehicleLocationsQuery.isLoading || vehicleLocationsQuery.isFetching) {
           wizard.setLocalError('Vehicle locations are still loading. Please wait a moment and try again.');
           return;
@@ -108,7 +109,12 @@ export function useVehicleStaffLocationsStep({ wizard }) {
 
       try {
         if (userIds.length > 0) {
-          await assignVehicleMutation.mutateAsync({ taskId: wizard.taskId, userIds, locationAssignments, taskStatus: values.closeAction });
+          await assignVehicleMutation.mutateAsync({
+            taskId: wizard.taskId,
+            userIds,
+            locationAssignments,
+            taskStatus: assignmentOnlyMode ? wizard.taskStatus : values.closeAction,
+          });
         }
 
         if (values.closeAction === 'READY_TO_START') {
@@ -128,8 +134,14 @@ export function useVehicleStaffLocationsStep({ wizard }) {
     
   });
 
-  const selectedStaff = Array.isArray(formik.values.staff) ? formik.values.staff : [];
-  const locationAssignments = formik.values.locationAssignments || {};
+  const selectedStaff = useMemo(
+    () => (Array.isArray(formik.values.staff) ? formik.values.staff : []),
+    [formik.values.staff],
+  );
+  const locationAssignments = useMemo(
+    () => formik.values.locationAssignments || {},
+    [formik.values.locationAssignments],
+  );
   const vehicleLocations = useMemo(
     () => getVehicleInventoryLocations(vehicleLocationsQuery.data),
     [vehicleLocationsQuery.data],
@@ -196,21 +208,23 @@ export function useVehicleStaffLocationsStep({ wizard }) {
   }, [vehicleAssignmentsQuery.data, vehicleAssignmentsQuery.isLoading, vehicleAssignmentsQuery.isError]);
 
   useEffect(() => {
-    let label = 'Save Draft';
+    let label = assignmentOnlyMode ? 'Save Assignments' : 'Save Draft';
     let startIcon = React.createElement(SaveRoundedIcon);
 
-    if (formik.values.closeAction === 'READY_TO_START') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'READY_TO_START') {
       label = 'Mark Ready';
       startIcon = React.createElement(AssignmentRoundedIcon);
     }
 
-    if (formik.values.closeAction === 'START_NOW') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'START_NOW') {
       label = 'Start Task';
       startIcon = React.createElement(PlayArrowRoundedIcon);
     }
 
     wizard.setStepConfig({
-      subtitle: 'Assign inventory staff, cover imported vehicle locations, then choose the final task status.',
+      subtitle: assignmentOnlyMode
+        ? 'Update the active staff and vehicle location distribution without changing task status.'
+        : 'Assign inventory staff, cover imported vehicle locations, then choose the final task status.',
       canClose: !busy,
       closeBlocked: busy,
       closeConfirmMessage: null,
@@ -224,7 +238,7 @@ export function useVehicleStaffLocationsStep({ wizard }) {
 
     return wizard.resetStepControls;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy, formik.values.closeAction, formik.values.staff, formik.values.locationAssignments]);
+  }, [assignmentOnlyMode, busy, formik.values.closeAction, formik.values.staff, formik.values.locationAssignments]);
 
   return {
     formik,

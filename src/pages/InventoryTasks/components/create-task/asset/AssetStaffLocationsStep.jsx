@@ -25,7 +25,7 @@ import WarehouseRoundedIcon from '@mui/icons-material/WarehouseRounded';
 import EnumChip from '../../../../../components/common/EnumChip.jsx';
 import FormikAsyncAutocomplete from '../../../../../components/form/FormikAsyncAutocomplete.jsx';
 import { INVENTORY_TASK_STATUS_CHIP_CONFIG } from '../../../../../constants/enumChipConfigs.jsx';
-import { getUsers } from '../../../../../services/userService.js';
+import { getEligibleInventoryStaff } from '../../../../../services/inventoryTaskService.js';
 import { queryKeys } from '../../../../../services/queryKeys.js';
 import { TASK_CLOSE_ACTION_OPTIONS } from '../../../constants/inventoryTaskOptions.js';
 import { useAssetStaffLocationsStep } from '../../../hooks/create-task/asset/useAssetStaffLocationsStep.js';
@@ -65,19 +65,25 @@ function AssetStaffLocationsStep({ wizard }) {
         Asset assignment is intentionally by Location only. Staff can be assigned to Amman, Irbid or any imported location, then choose Floor and Place inside the app workflow.
       </Alert>
 
+      {wizard.assignmentOnlyMode && (
+        <Alert severity={wizard.taskStatus === 'PAUSED' ? 'warning' : 'info'}>
+          Saving here updates the active team distribution only. The task will remain {wizard.taskStatus}.
+        </Alert>
+      )}
+
       <FormikAsyncAutocomplete
         formik={formik}
         name="staff"
         label="Inventory Staff"
-        queryKey={queryKeys.users.list({ userType: 'INVENTORY_STAFF', status: 'true' })}
-        queryFn={getUsers}
+        queryKey={queryKeys.inventoryTasks.eligibleStaff(wizard.taskId)}
+        queryFn={(params) => getEligibleInventoryStaff({ taskId: wizard.taskId, ...params })}
         disabled={busy}
         multiple
-        extraParams={{ userType: 'INVENTORY_STAFF', status: 'true', size: 20 }}
+        extraParams={{ size: 20 }}
         optionLabelKeys={['firstName', 'lastName', 'username']}
         getOptionValue={getUserValue}
         getOptionLabel={getUserLabel}
-        helperText="Only inventory staff users should be assigned to app scanning tasks."
+        helperText="Only active inventory staff linked to this task company and asset domain are shown."
       />
 
       <ReviewPanel
@@ -195,7 +201,7 @@ function AssetStaffLocationsStep({ wizard }) {
         </Stack>
       </ReviewPanel>
 
-      <FormControl component="fieldset">
+      {!wizard.assignmentOnlyMode && <FormControl component="fieldset">
         <Typography sx={{ fontWeight: 950, mb: 1 }}>Final action</Typography>
         <RadioGroup
           value={formik.values.closeAction}
@@ -238,7 +244,7 @@ function AssetStaffLocationsStep({ wizard }) {
         <FormHelperText>
           Draft is the safe option when Excel import, staff assignment or location assignment is not complete.
         </FormHelperText>
-      </FormControl>
+      </FormControl>}
 
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
         <Typography color="text.secondary" sx={{ fontSize: '0.84rem' }}>

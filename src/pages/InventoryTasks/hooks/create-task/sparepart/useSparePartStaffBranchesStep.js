@@ -63,6 +63,7 @@ const buildBranchAssignmentFormValues = (assignments = []) => {
 };
 
 export function useSparePartStaffBranchesStep({ wizard }) {
+  const assignmentOnlyMode = wizard.assignmentOnlyMode;
   const sparePartBranchesQuery = useSparePartInventoryBranchesQuery({
     taskId: wizard.taskId,
     enabled: Boolean(wizard.taskId),
@@ -95,19 +96,19 @@ export function useSparePartStaffBranchesStep({ wizard }) {
         .filter(Boolean);
 
       const branchAssignments = buildBranchAssignmentPayload(values);
-      const existingAssignmentCount = getInventoryTaskAssignments(sparePartAssignmentsQuery.data).length;
       const sparePartBranches = getSparePartInventoryBranches(sparePartBranchesQuery.data);
       const sparePartBranchIds = sparePartBranches
         .map(getSparePartBranchId)
         .filter((branchId) => branchId !== undefined && branchId !== null && branchId !== '');
+      const requiresCompleteCoverage = assignmentOnlyMode || values.closeAction !== 'DRAFT';
 
-      if (values.closeAction !== 'DRAFT' && userIds.length === 0 && existingAssignmentCount === 0) {
+      if (requiresCompleteCoverage && userIds.length === 0) {
         formik.setFieldTouched('staff', true);
         wizard.setLocalError('Please assign at least one inventory staff member before moving the task forward.');
         return;
       }
 
-      if (values.closeAction !== 'DRAFT' && userIds.length > 0) {
+      if (requiresCompleteCoverage && userIds.length > 0) {
         if (sparePartBranchesQuery.isLoading || sparePartBranchesQuery.isFetching) {
           wizard.setLocalError('Spare part branches are still loading. Please wait a moment and try again.');
           return;
@@ -140,7 +141,12 @@ export function useSparePartStaffBranchesStep({ wizard }) {
 
       try {
         if (userIds.length > 0) {
-          await assignSparePartMutation.mutateAsync({ taskId: wizard.taskId, userIds, branchAssignments, taskStatus: values.closeAction });
+          await assignSparePartMutation.mutateAsync({
+            taskId: wizard.taskId,
+            userIds,
+            branchAssignments,
+            taskStatus: assignmentOnlyMode ? wizard.taskStatus : values.closeAction,
+          });
         }
 
         if (values.closeAction === 'READY_TO_START') {
@@ -159,8 +165,14 @@ export function useSparePartStaffBranchesStep({ wizard }) {
     },
   });
 
-  const selectedStaff = Array.isArray(formik.values.staff) ? formik.values.staff : [];
-  const branchAssignments = formik.values.branchAssignments || {};
+  const selectedStaff = useMemo(
+    () => (Array.isArray(formik.values.staff) ? formik.values.staff : []),
+    [formik.values.staff],
+  );
+  const branchAssignments = useMemo(
+    () => formik.values.branchAssignments || {},
+    [formik.values.branchAssignments],
+  );
   const sparePartBranches = useMemo(
     () => getSparePartInventoryBranches(sparePartBranchesQuery.data),
     [sparePartBranchesQuery.data],
@@ -227,21 +239,23 @@ export function useSparePartStaffBranchesStep({ wizard }) {
   }, [sparePartAssignmentsQuery.data, sparePartAssignmentsQuery.isLoading, sparePartAssignmentsQuery.isError]);
 
   useEffect(() => {
-    let label = 'Save Draft';
+    let label = assignmentOnlyMode ? 'Save Assignments' : 'Save Draft';
     let startIcon = React.createElement(SaveRoundedIcon);
 
-    if (formik.values.closeAction === 'READY_TO_START') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'READY_TO_START') {
       label = 'Mark Ready';
       startIcon = React.createElement(AssignmentRoundedIcon);
     }
 
-    if (formik.values.closeAction === 'START_NOW') {
+    if (!assignmentOnlyMode && formik.values.closeAction === 'START_NOW') {
       label = 'Start Task';
       startIcon = React.createElement(PlayArrowRoundedIcon);
     }
 
     wizard.setStepConfig({
-      subtitle: 'Assign inventory staff by spare part branches. Staff will choose the cabinet/rack Location inside the Android app during counting.',
+      subtitle: assignmentOnlyMode
+        ? 'Update the active staff and spare-part branch distribution without changing task status.'
+        : 'Assign inventory staff by spare part branches. Staff will choose the cabinet/rack Location inside the Android app during counting.',
       canClose: !busy,
       closeBlocked: busy,
       closeConfirmMessage: null,
@@ -255,7 +269,7 @@ export function useSparePartStaffBranchesStep({ wizard }) {
 
     return wizard.resetStepControls;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy, formik.values.closeAction, formik.values.staff, formik.values.branchAssignments]);
+  }, [assignmentOnlyMode, busy, formik.values.closeAction, formik.values.staff, formik.values.branchAssignments]);
 
   return {
     formik,

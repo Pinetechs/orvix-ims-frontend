@@ -7,7 +7,11 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import { queryClient } from '../../../../../services/queryClient.js';
 import { queryKeys } from '../../../../../services/queryKeys.js';
 import { useCreateInventoryTaskMutation } from '../../useCreateInventoryTaskMutation.js';
-import { buildCreatePayload } from '../../../utils/createInventoryTaskDialogUtils.js';
+import { useUpdateInventoryTaskScanSettingsMutation } from '../../useInventoryTaskManagementMutations.js';
+import {
+  buildCreatePayload,
+  buildScanSettingsPayload,
+} from '../../../utils/createInventoryTaskDialogUtils.js';
 import { unwrapResponseData } from '../../../utils/inventoryTaskMappers.js';
 import { inventoryTypeSchema } from '../../../forms/create-task/inventoryTypeForm.js';
 
@@ -21,10 +25,19 @@ export function useInventoryTypeStep({ wizard }) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.inventoryTasks.all });
     },
   });
+  const updateSettingsMutation = useUpdateInventoryTaskScanSettingsMutation({
+    onSuccess: (response) => {
+      wizard.setCreatedTask(unwrapResponseData(response));
+    },
+  });
+
+  const sourceTask = wizard.currentTask || {};
 
   const formik = useFormik({
     initialValues: {
       inventoryDomain: wizard.inventoryDomain || 'VEHICLE',
+      scanImageRequired: sourceTask.scanImageRequired !== false,
+      sparePartLocationProgressMode: sourceTask.sparePartLocationProgressMode || 'BASIC',
     },
     validationSchema: inventoryTypeSchema,
     enableReinitialize: true,
@@ -36,11 +49,22 @@ export function useInventoryTypeStep({ wizard }) {
       if (!wizard.createdTask) {
         try {
           const response = await createMutation.mutateAsync(
-            buildCreatePayload({ ...wizard.taskInformation, inventoryDomain: values.inventoryDomain }),
+            buildCreatePayload({ ...wizard.taskInformation, ...values }),
           );
           wizard.setCreatedTask(unwrapResponseData(response));
         } catch (error) {
           wizard.setLocalError(error.message || 'Could not create inventory task draft.');
+          return;
+        }
+      } else {
+        try {
+          const response = await updateSettingsMutation.mutateAsync({
+            taskId: wizard.taskId,
+            payload: buildScanSettingsPayload(values),
+          });
+          wizard.setCreatedTask(unwrapResponseData(response));
+        } catch (error) {
+          wizard.setLocalError(error.message || 'Could not update scan settings.');
           return;
         }
       }
@@ -50,7 +74,7 @@ export function useInventoryTypeStep({ wizard }) {
   });
 
   const handleDomainSelect = (value) => {
-    if (locked || createMutation.isPending) return;
+    if (locked || createMutation.isPending || updateSettingsMutation.isPending) return;
     formik.setFieldValue('inventoryDomain', value);
     formik.setFieldTouched('inventoryDomain', true, false);
     wizard.setInventoryDomain(value);
@@ -59,13 +83,13 @@ export function useInventoryTypeStep({ wizard }) {
   useEffect(() => {
     wizard.setStepConfig({
       subtitle: 'The selected type controls the next steps and their internal business logic.',
-      canClose: !createMutation.isPending,
-      closeBlocked: createMutation.isPending,
+      canClose: !createMutation.isPending && !updateSettingsMutation.isPending,
+      closeBlocked: createMutation.isPending || updateSettingsMutation.isPending,
       closeConfirmMessage: null,
-      nextLabel: locked ? 'Continue' : 'Create Draft & Next',
-      nextDisabled: createMutation.isPending || !formik.values.inventoryDomain,
-      nextLoading: createMutation.isPending,
-      nextLoadingLabel: 'Creating draft...',
+      nextLabel: locked ? 'Save Settings & Continue' : 'Create Draft & Next',
+      nextDisabled: createMutation.isPending || updateSettingsMutation.isPending || !formik.values.inventoryDomain,
+      nextLoading: createMutation.isPending || updateSettingsMutation.isPending,
+      nextLoadingLabel: locked ? 'Saving settings...' : 'Creating draft...',
       onNext: formik.submitForm,
       nextStartIcon: locked ? null : React.createElement(SaveRoundedIcon),
       nextEndIcon: locked ? React.createElement(KeyboardArrowRightRoundedIcon) : null,
@@ -73,12 +97,20 @@ export function useInventoryTypeStep({ wizard }) {
 
     return wizard.resetStepControls;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createMutation.isPending, formik.values.inventoryDomain, locked]);
+  }, [
+    createMutation.isPending,
+    updateSettingsMutation.isPending,
+    formik.values.inventoryDomain,
+    formik.values.scanImageRequired,
+    formik.values.sparePartLocationProgressMode,
+    locked,
+  ]);
 
   return {
     formik,
     locked,
     createMutation,
+    updateSettingsMutation,
     handleDomainSelect,
   };
 }

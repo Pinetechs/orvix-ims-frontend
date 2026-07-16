@@ -53,3 +53,60 @@ export const startInventoryTask = async ({ taskId }) => {
     throw new Error(getErrorMessage(error, 'Could not start inventory task'));
   }
 };
+
+export const updateInventoryTaskScanSettings = async ({ taskId, payload }) => {
+  try {
+    const response = await apiClient.patch(`${apiRoute.inventoryTasks}/${taskId}/scan-settings`, payload);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not update scan settings'));
+  }
+};
+
+export const getEligibleInventoryStaff = async ({ taskId, ...params }) => {
+  if (!taskId) return { content: [] };
+  try {
+    const response = await apiClient.get(`${apiRoute.inventoryTasks}/${taskId}/eligible-staff`, {
+      params: cleanRequestParams(params),
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not load eligible inventory staff'));
+  }
+};
+
+export const pauseInventoryTask = async ({ taskId, reason }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/pause`, { reason });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not pause inventory task'));
+  }
+};
+
+export const resumeInventoryTask = async ({ taskId }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/resume`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not resume inventory task'));
+  }
+};
+
+export const cancelInventoryTask = async ({ taskId, reason }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/cancel`, { reason });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not cancel inventory task'));
+  }
+};
+
+export const deleteInventoryTask = async ({ taskId }) => {
+  try {
+    await apiClient.delete(`${apiRoute.inventoryTasks}/${taskId}`);
+    return taskId;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not delete inventory task'));
+  }
+};

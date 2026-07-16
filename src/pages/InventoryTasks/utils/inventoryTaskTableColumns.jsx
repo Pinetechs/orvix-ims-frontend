@@ -4,6 +4,8 @@ import { alpha } from '@mui/material/styles';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 
 import EnumChip from '../../../components/common/EnumChip.jsx';
+import InventoryTaskActionsMenu from '../components/InventoryTaskActionsMenu.jsx';
+import { canAssignInventoryTask, canUpdateInventoryTask } from './inventoryTaskPermissions.js';
 import {
   INVENTORY_DOMAIN_CHIP_CONFIG,
   INVENTORY_TASK_STATUS_CHIP_CONFIG,
@@ -28,11 +30,33 @@ const RESUMABLE_STATUSES = new Set([
   'READY_FOR_ASSIGNMENT',
   'READY_TO_START',
   'DRAFT',
+  'IN_PROGRESS',
+  'PAUSED',
 ]);
 
 export const isInventoryTaskResumable = (row = {}) => RESUMABLE_STATUSES.has(row.status);
 
-export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {}) => [
+const getContinueLabel = (row = {}) =>
+  row.status === 'IN_PROGRESS' || row.status === 'PAUSED' ? 'Manage assignments' : 'Continue';
+
+const canContinueTask = (auth, row = {}) => {
+  if (row.status === 'IN_PROGRESS' || row.status === 'PAUSED') {
+    return canAssignInventoryTask(auth, row);
+  }
+  return canUpdateInventoryTask(auth, row) || canAssignInventoryTask(auth, row);
+};
+
+export const createInventoryTaskTableColumns = ({
+  auth,
+  isMobile,
+  onResumeTask,
+  onEditScanSettings,
+  onManageAssignments,
+  onPause,
+  onResume,
+  onDelete,
+  onCancel,
+} = {}) => [
   {
     field: 'task',
     headerName: 'Task',
@@ -46,7 +70,7 @@ export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {})
         <Typography color="text.secondary" sx={{ fontSize: '0.8rem' }} noWrap>
           {getTaskNumber(params.row)}
         </Typography>
-        {isInventoryTaskResumable(params.row) && (
+        {isInventoryTaskResumable(params.row) && canContinueTask(auth, params.row) && (
           <Button
             size="small"
             variant="outlined"
@@ -70,7 +94,7 @@ export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {})
               },
             })}
           >
-            Continue
+            {getContinueLabel(params.row)}
           </Button>
         )}
       </Stack>
@@ -165,6 +189,18 @@ export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {})
     ),
   },
   {
+    field: 'scanCount',
+    headerName: 'Scan Events',
+    minWidth: 120,
+    flex: 0.48,
+    sortable: false,
+    renderCell: (params) => (
+      <Tooltip title="Includes first scans, duplicates, conflicts and corrections">
+        <Typography sx={{ fontWeight: 900 }}>{Number(params.row.scanCount || 0)}</Typography>
+      </Tooltip>
+    ),
+  },
+  {
     field: 'createdBy',
     headerName: 'Created By',
     minWidth: 150,
@@ -203,6 +239,28 @@ export const createInventoryTaskTableColumns = ({ isMobile, onResumeTask } = {})
           {formatDateTime(params.row.closedAt)}
         </Typography>
       </Tooltip>
+    ),
+  },
+
+  {
+    field: 'actions',
+    headerName: '',
+    width: 64,
+    sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
+    align: 'center',
+    renderCell: (params) => (
+      <InventoryTaskActionsMenu
+        row={params.row}
+        auth={auth}
+        onEditScanSettings={onEditScanSettings}
+        onManageAssignments={onManageAssignments}
+        onPause={onPause}
+        onResume={onResume}
+        onDelete={onDelete}
+        onCancel={onCancel}
+      />
     ),
   },
 ];

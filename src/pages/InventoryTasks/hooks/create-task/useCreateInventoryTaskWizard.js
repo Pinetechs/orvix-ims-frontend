@@ -57,9 +57,12 @@ export function useCreateInventoryTaskWizard({ open, taskId: resumeTaskId = null
   });
 
   const taskDetails = useMemo(() => unwrapResponseData(taskDetailsQuery.data), [taskDetailsQuery.data]);
-  const currentTask = taskDetails || createdTask;
+  // Prefer the locally refreshed response after a mutation. The details query may
+  // still contain the previous server snapshot until its invalidation completes.
+  const currentTask = createdTask || taskDetails;
   const taskId = getTaskId(currentTask);
   const taskStatus = getTaskStatus(currentTask);
+  const assignmentOnlyMode = taskStatus === 'IN_PROGRESS' || taskStatus === 'PAUSED';
   const steps = useMemo(() => buildCreateTaskSteps({ inventoryDomain }), [inventoryDomain]);
   const currentStep = steps[activeStep] || steps[steps.length - 1] || steps[0];
   const isFinalStep = Boolean(currentStep?.final || activeStep === steps.length - 1);
@@ -224,7 +227,11 @@ export function useCreateInventoryTaskWizard({ open, taskId: resumeTaskId = null
   const waitingForResumeDetails = isResumeMode && taskDetailsQuery.isLoading && !taskDetails;
 
   return {
-    title: isResumeMode ? 'Continue Inventory Task' : 'Create Inventory Task',
+    title: assignmentOnlyMode
+      ? 'Manage Task Assignments'
+      : isResumeMode
+        ? 'Continue Inventory Task'
+        : 'Create Inventory Task',
     subtitle,
     setSubtitle,
 
@@ -232,7 +239,7 @@ export function useCreateInventoryTaskWizard({ open, taskId: resumeTaskId = null
     steps,
     currentStep,
     isFinalStep,
-    canBack: activeStep > 0,
+    canBack: activeStep > 0 && !assignmentOnlyMode,
     goBack,
     goNext,
 
@@ -245,6 +252,7 @@ export function useCreateInventoryTaskWizard({ open, taskId: resumeTaskId = null
     currentTask,
     taskId,
     taskStatus,
+    assignmentOnlyMode,
 
     importJobId,
     setImportJobId,

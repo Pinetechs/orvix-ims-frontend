@@ -27,6 +27,7 @@ export const queryKeys = {
     all: ['inventory-tasks'],
     list: (params) => ['inventory-tasks', 'list', params],
     details: (id) => ['inventory-tasks', 'details', id],
+    eligibleStaff: (id) => ['inventory-tasks', 'details', id, 'eligible-staff'],
   },
   vehicleInventory: {
     all: ['vehicle-inventory'],
