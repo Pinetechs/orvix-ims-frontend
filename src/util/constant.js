@@ -16,6 +16,8 @@ export const apiRoute = {
   backgroundJobs: '/api/background-jobs',
   reports: '/api/reports',
   lookups: '/api/lookups',
+  dashboardOverview: '/api/dashboard/overview',
+  inventoryTrackingTasks: '/api/inventory/tracking/tasks',
 };
 
 export const storageKeys = {

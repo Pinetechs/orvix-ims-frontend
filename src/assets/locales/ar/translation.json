@@ -7,6 +7,396 @@
   "login": "تسجيل الدخول",
   "logout": "تسجيل الخروج",
   "changePassword": "تغيير كلمة المرور",
+  "dashboardPage": {
+    "title": "لوحة المتابعة التشغيلية",
+    "operationalSubtitle": "عرض مباشر لتنفيذ الجرد ضمن الشركات والمجالات المسموحة لك.",
+    "administrationSubtitle": "ملخص إداري للشركات ومستخدمي النظام.",
+    "refresh": "تحديث",
+    "updatedAt": "آخر تحديث {{value}}",
+    "errorTitle": "تعذر تحميل لوحة التحكم",
+    "errorText": "تحقق من الاتصال ثم حاول مرة أخرى.",
+    "tryAgain": "إعادة المحاولة",
+    "staleDataWarning": "فشل آخر تحديث، وما زالت آخر بيانات متاحة معروضة.",
+    "adminOnlyTitle": "المتابعة التشغيلية غير متاحة لهذا الدور",
+    "adminOnlyText": "يمكنك الاطلاع على المؤشرات الإدارية أعلاه، بينما تبقى متابعة تنفيذ الجرد للأدوار التشغيلية.",
+    "metrics": {
+      "activeTasks": "المهام النشطة",
+      "activeTasksHint": "{{count}} جاهزة للبدء",
+      "inProgress": "قيد التنفيذ",
+      "inProgressHint": "{{count}} متوقفة مؤقتًا",
+      "underReview": "قيد المراجعة",
+      "underReviewHint": "{{count}} مكتملة هذا الشهر",
+      "attentionRequired": "تحتاج إلى انتباه",
+      "attentionRequiredHint": "ضمن {{count}} مهام متأثرة"
+    },
+    "execution": {
+      "title": "ملخص التنفيذ",
+      "subtitle": "النتيجة الحالية المعتمدة لعناصر الجرد المتوقعة.",
+      "complete": "مكتمل",
+      "expected": "المتوقع",
+      "processed": "المعالج",
+      "remaining": "المتبقي",
+      "matched": "المطابق",
+      "mismatched": "غير المطابق",
+      "calculationNote": "يُحسب التقدم من المسح الحالي المعتمد لكل عنصر؛ ولا تزيد أحداث التكرار أو التعارض نسبة الإنجاز."
+    },
+    "domains": {
+      "title": "التقدم حسب مجال الجرد",
+      "subtitle": "حالة التنفيذ لكل مجال جرد مسموح لك.",
+      "activeTasks": "{{count}} مهام نشطة",
+      "names": {
+        "VEHICLE": "المركبات",
+        "ASSET": "الأصول",
+        "SPARE_PART": "قطع الغيار"
+      }
+    },
+    "attention": {
+      "title": "تحتاج إلى انتباه",
+      "subtitle": "حالات تشغيلية قد تتطلب تدخل المشرف.",
+      "stalledTasks": "المهام المتوقفة دون نشاط",
+      "tasksWithMismatches": "مهام تحتوي اختلافات",
+      "tasksMissingRequiredImages": "صور إلزامية مفقودة",
+      "importFailedTasks": "عمليات استيراد فاشلة",
+      "tasksWithHighDuplicateRate": "معدل تكرار مرتفع",
+      "openTasks": "فتح مهام الجرد"
+    },
+    "recentTasks": {
+      "title": "أحدث المهام النشطة",
+      "subtitle": "آخر المهام تحديثًا ضمن نطاق صلاحياتك.",
+      "viewAll": "عرض الكل",
+      "open": "فتح المهمة",
+      "stalled": "متوقفة",
+      "issues": "{{count}} ملاحظات",
+      "lastActivity": "آخر نشاط: {{value}}",
+      "emptyTitle": "لا توجد مهام جرد نشطة",
+      "emptyText": "ستظهر المهام الجديدة أو المعادة للتنفيذ هنا تلقائيًا."
+    },
+    "statuses": {
+      "CREATED": "تم الإنشاء",
+      "DRAFT": "مسودة",
+      "IMPORT_PENDING": "بانتظار الاستيراد",
+      "IMPORT_IN_PROGRESS": "الاستيراد قيد التنفيذ",
+      "IMPORT_FAILED": "فشل الاستيراد",
+      "IMPORT_COMPLETED": "اكتمل الاستيراد",
+      "READY_FOR_ASSIGNMENT": "جاهزة للتعيين",
+      "READY_TO_START": "جاهزة للبدء",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "PAUSED": "متوقفة مؤقتًا",
+      "UNDER_REVIEW": "قيد المراجعة",
+      "COMPLETED": "مكتملة",
+      "CANCELLED": "ملغاة"
+    },
+    "administration": {
+      "title": "الملخص الإداري",
+      "subtitle": "بيانات الشركات والمستخدمين المتاحة حسب دورك.",
+      "totalCompanies": "إجمالي الشركات",
+      "activeCompanies": "الشركات الفعالة",
+      "totalUsers": "إجمالي المستخدمين",
+      "activeUsers": "المستخدمون الفعالون"
+    }
+  },
+  "taskTracking": {
+    "common": {
+      "loading": "جارٍ تحميل بيانات التتبع...",
+      "retry": "إعادة المحاولة",
+      "loadError": "تعذر تحميل بيانات التتبع.",
+      "empty": "لا توجد سجلات",
+      "back": "رجوع",
+      "close": "إغلاق",
+      "refresh": "تحديث",
+      "saving": "جارٍ الحفظ...",
+      "allStatuses": "جميع الحالات",
+      "code": "الرمز",
+      "expected": "المتوقع",
+      "actual": "الفعلي",
+      "staff": "الموظف",
+      "invalidTask": "معرّف المهمة غير صالح.",
+      "staleWarning": "فشل آخر تحديث، وما زالت آخر بيانات تتبع متاحة معروضة."
+    },
+    "duration": {
+      "daysHours": "{{days}} يوم {{hours}} ساعة",
+      "hoursMinutes": "{{hours}} ساعة {{minutes}} دقيقة",
+      "minutes": "{{minutes}} دقيقة"
+    },
+    "header": {
+      "back": "العودة إلى مهام الجرد",
+      "stalled": "متوقفة دون نشاط",
+      "imageRequired": "صورة المسح إلزامية",
+      "generatedAt": "آخر تحديث {{value}}",
+      "manage": "إدارة المهمة",
+      "track": "تتبع المهمة"
+    },
+    "tabs": {
+      "overview": "نظرة عامة",
+      "areas": "المناطق",
+      "team": "الفريق",
+      "attention": "تحتاج إلى انتباه",
+      "results": "النتائج",
+      "scanEvents": "أحداث المسح",
+      "timeline": "السجل الزمني"
+    },
+    "actions": {
+      "markReady": "تحديد كجاهزة",
+      "start": "بدء المهمة",
+      "pause": "إيقاف مؤقت",
+      "resume": "استئناف",
+      "submitForReview": "إرسال للمراجعة",
+      "returnToProgress": "إعادة للتنفيذ",
+      "complete": "إكمال المهمة",
+      "cancel": "إلغاء المهمة",
+      "reason": "السبب",
+      "reasonHelp": "{{count}}/500 · مطلوب لسجل التدقيق",
+      "failed": "تعذر تنفيذ الإجراء على المهمة.",
+      "success": {
+        "markReady": "تم تحديد مهمة الجرد كجاهزة بنجاح.",
+        "start": "تم بدء مهمة الجرد بنجاح.",
+        "pause": "تم إيقاف مهمة الجرد مؤقتًا.",
+        "resume": "تم استئناف مهمة الجرد بنجاح.",
+        "submitForReview": "تم إرسال مهمة الجرد للمراجعة.",
+        "returnToProgress": "تمت إعادة مهمة الجرد للتنفيذ.",
+        "complete": "تم إكمال مهمة الجرد بنجاح.",
+        "cancel": "تم إلغاء المهمة مع الاحتفاظ بها للتدقيق."
+      },
+      "dialog": {
+        "markReady": { "title": "تحديد المهمة كجاهزة", "message": "تأكد من اكتمال الاستيراد والتعيينات قبل بدء التنفيذ." },
+        "start": { "title": "بدء مهمة الجرد", "message": "ستصبح المهمة متاحة للبدء بعمليات المسح الفعلية." },
+        "pause": { "title": "إيقاف مهمة الجرد مؤقتًا", "message": "سيتوقف المسح أثناء الإيقاف المؤقت. أدخل السبب التشغيلي." },
+        "resume": { "title": "استئناف مهمة الجرد", "message": "سيصبح المسح متاحًا مجددًا باستخدام التعيينات الحالية." },
+        "submitForReview": { "title": "إرسال المهمة للمراجعة", "message": "سيتوقف التنفيذ وتنتقل المهمة إلى مراجعة المشرف." },
+        "returnToProgress": { "title": "إعادة المهمة للتنفيذ", "message": "ستفتح المهمة للمسح مجددًا. وضح ما يجب تصحيحه أو استكماله." },
+        "complete": { "title": "إكمال مهمة الجرد", "message": "سيتم إغلاق المهمة بعد المراجعة مع حفظ النتائج النهائية وسجل التدقيق." },
+        "cancel": { "title": "إلغاء مهمة الجرد", "message": "ستبقى المهمة متاحة كسجل ملغى للقراءة فقط ولغايات التدقيق." }
+      }
+    },
+    "overview": {
+      "paused": "هذه المهمة متوقفة مؤقتًا حاليًا.",
+      "executionTitle": "تقدم التنفيذ",
+      "executionSubtitle": "النتيجة الحالية المعتمدة لعناصر الجرد المتوقعة.",
+      "quantityTitle": "فروقات الكميات",
+      "activityTitle": "نشاط المسح",
+      "activitySubtitle": "أحداث التدقيق لا تزيد عدد العناصر المكتملة المعتمدة.",
+      "timingTitle": "توقيتات المهمة",
+      "metrics": {
+        "expected": "المتوقع",
+        "processed": "المعالج",
+        "matched": "المطابق",
+        "mismatched": "غير المطابق",
+        "remaining": "المتبقي"
+      },
+      "quantities": {
+        "totalExpectedQuantity": "الكمية المتوقعة",
+        "actualQuantity": "الكمية الفعلية",
+        "shortageQuantity": "العجز",
+        "overageQuantity": "الزيادة",
+        "netVarianceQuantity": "صافي الفرق"
+      },
+      "events": {
+        "totalEvents": "إجمالي الأحداث",
+        "duplicates": "التكرارات",
+        "conflicts": "التعارضات",
+        "corrections": "التصحيحات",
+        "extras": "الإضافات"
+      },
+      "timing": {
+        "startedAt": "وقت البدء",
+        "lastActivityAt": "آخر نشاط مسح",
+        "activeTime": "وقت العمل الفعلي",
+        "reviewStartedAt": "بدء المراجعة",
+        "closedAt": "وقت الإغلاق"
+      }
+    },
+    "areaStatuses": {
+      "NOT_STARTED": "لم تبدأ",
+      "ACTIVE": "نشطة",
+      "STALLED": "متوقفة دون نشاط",
+      "COMPLETED": "مكتملة"
+    },
+    "areaLevels": {
+      "STORE": "المخزن",
+      "LOCATION": "الموقع",
+      "FLOOR": "الطابق",
+      "PLACE": "المكان",
+      "BRANCH": "الفرع"
+    },
+    "areas": {
+      "title": "تقدم المناطق",
+      "subtitle": "التقدم والتعيينات وآخر نشاط لكل منطقة جرد.",
+      "search": "بحث في المنطقة أو الموظف",
+      "empty": "لا توجد مناطق تطابق عوامل التصفية.",
+      "columns": {
+        "area": "المنطقة",
+        "status": "الحالة",
+        "progress": "التقدم",
+        "planned": "المخطط",
+        "processed": "المعالج",
+        "mismatched": "الاختلاف",
+        "events": "أحداث المسح",
+        "staff": "الموظفون المعيّنون",
+        "lastActivity": "آخر نشاط"
+      }
+    },
+    "team": {
+      "title": "فريق الجرد",
+      "subtitle": "النتائج المعتمدة ونشاط المسح لكل موظف جرد.",
+      "empty": "لا توجد تعيينات أو أنشطة للموظفين.",
+      "assigned": "مُعيّن حاليًا",
+      "previous": "سابق",
+      "columns": {
+        "member": "عضو الفريق",
+        "areas": "المناطق المعيّنة",
+        "accepted": "المعتمد",
+        "matched": "المطابق",
+        "mismatched": "الاختلاف",
+        "events": "الأحداث",
+        "duplicates": "التكرارات",
+        "conflicts": "التعارضات",
+        "corrections": "التصحيحات",
+        "extras": "الإضافات",
+        "lastActivity": "آخر نشاط",
+        "inactive": "مدة عدم النشاط"
+      }
+    },
+    "attention": {
+      "title": "العناصر التي تحتاج إلى انتباه",
+      "subtitle": "الحالات الحالية التي تحتاج مراجعة أو متابعة المشرف.",
+      "empty": "لا توجد عناصر تحتاج إلى انتباه حاليًا.",
+      "filteredEmpty": "لا توجد عناصر انتباه تطابق عامل التصفية المحدد.",
+      "resultsCount": "{{count}} عنصر",
+      "filters": {
+        "all": "جميع أنواع المشكلات",
+        "clear": "مسح عامل التصفية"
+      },
+      "truncated": "يتم عرض العناصر الأعلى أولوية فقط. استخدم النتائج وأحداث المسح لعرض السجل الكامل.",
+      "summary": {
+        "totalIssues": "إجمالي المشكلات",
+        "currentMismatches": "الاختلافات الحالية",
+        "missingRequiredImages": "الصور المفقودة",
+        "extraEvents": "الأحداث الإضافية",
+        "uniqueUnexpectedCodes": "الرموز غير المتوقعة",
+        "conflicts": "التعارضات",
+        "staffNotes": "ملاحظات الموظفين",
+        "stalledAreas": "المناطق المتوقفة",
+        "notStartedAreas": "المناطق التي لم تبدأ"
+      },
+      "flags": {
+        "importFailed": "فشل الاستيراد",
+        "highDuplicateRate": "معدل تكرار مرتفع",
+        "readyForReview": "جاهزة للمراجعة"
+      },
+      "types": {
+        "MISMATCH": "اختلاف",
+        "EXTRA": "إضافة",
+        "CONFLICT": "تعارض",
+        "MISSING_IMAGE": "صورة مفقودة",
+        "STAFF_NOTE": "ملاحظة موظف",
+        "STALLED_AREA": "منطقة متوقفة",
+        "READY_FOR_REVIEW": "جاهزة للمراجعة",
+        "IMPORT_FAILED": "فشل الاستيراد",
+        "HIGH_DUPLICATE_RATE": "معدل تكرار مرتفع",
+        "AREA_NOT_STARTED": "منطقة لم تبدأ"
+      }
+    },
+    "resultFilters": {
+      "ALL": "جميع النتائج",
+      "MATCHED": "مطابق",
+      "MISMATCHED": "غير مطابق",
+      "REMAINING": "لم يُعد",
+      "MISSING_IMAGE": "صورة مفقودة",
+      "NOTES": "مع ملاحظات"
+    },
+    "results": {
+      "title": "نتائج الجرد الحالية",
+      "subtitle": "نتيجة حالية معتمدة واحدة لكل عنصر جرد متوقع.",
+      "search": "بحث بالرمز أو الوصف",
+      "clearSearch": "مسح البحث",
+      "clearFilters": "مسح عوامل التصفية",
+      "resultsCount": "{{count}} نتيجة",
+      "empty": "لا توجد نتائج تطابق عوامل التصفية.",
+      "scanHistory": {
+        "open": "عرض سجل المسح",
+        "title": "سجل عمليات المسح",
+        "subtitle": "سجل تدقيق زمني لعمليات المسح المرتبطة بهذه النتيجة.",
+        "eventCount": "{{count}} حدث",
+        "current": "عملية المسح المعتمدة حاليًا",
+        "empty": "لم يتم العثور على أحداث مسح لهذه النتيجة.",
+        "truncated": "يتم عرض أحدث 100 حدث مسح مطابق فقط."
+      },
+      "columns": {
+        "code": "الرمز",
+        "description": "الوصف",
+        "status": "النتيجة",
+        "expectedArea": "الموقع المتوقع",
+        "actualArea": "الموقع الفعلي",
+        "expectedQuantity": "الكمية المتوقعة",
+        "actualQuantity": "الكمية الفعلية",
+        "variance": "الفرق",
+        "acceptedBy": "اعتمدها",
+        "acceptedAt": "وقت الاعتماد",
+        "details": "التفاصيل"
+      }
+    },
+    "eventTypes": {
+      "ALL": "جميع أنواع الأحداث",
+      "FIRST_SCAN": "أول مسح",
+      "DUPLICATE": "مسح مكرر",
+      "CONFLICT": "تعارض",
+      "EXTRA": "رمز إضافي",
+      "AMBIGUOUS": "غير محدد",
+      "CORRECTION": "تصحيح"
+    },
+    "scanEvents": {
+      "title": "سجل أحداث المسح",
+      "subtitle": "أدلة المسح الزمنية بما فيها التكرارات والتعارضات والتصحيحات.",
+      "search": "بحث بالرمز الممسوح",
+      "clearSearch": "مسح البحث",
+      "clearFilters": "مسح عوامل التصفية",
+      "resultsCount": "{{count}} حدث",
+      "empty": "لا توجد أحداث مسح تطابق عوامل التصفية.",
+      "columns": {
+        "code": "الرمز الممسوح",
+        "eventType": "نوع الحدث",
+        "result": "النتيجة",
+        "expectedArea": "الموقع المتوقع",
+        "actualArea": "الموقع الفعلي",
+        "expectedQuantity": "الكمية المتوقعة",
+        "actualQuantity": "الكمية الفعلية",
+        "variance": "الفرق",
+        "scannedBy": "الموظف",
+        "scannedAt": "وقت المسح",
+        "device": "الجهاز",
+        "details": "الأدلة"
+      }
+    },
+    "timeline": {
+      "title": "السجل الزمني للمهمة",
+      "subtitle": "أنشطة دورة المهمة والاستيراد والتعيينات وإعدادات المسح.",
+      "empty": "لا توجد أنشطة في السجل الزمني.",
+      "system": "النظام"
+    },
+    "activityTypes": {
+      "TASK_CREATED": "إنشاء المهمة",
+      "IMPORT_QUEUED": "إدراج الاستيراد في قائمة الانتظار",
+      "IMPORT_STARTED": "بدء الاستيراد",
+      "IMPORT_COMPLETED": "اكتمال الاستيراد",
+      "IMPORT_FAILED": "فشل الاستيراد",
+      "ASSIGNMENTS_UPDATED": "تحديث التعيينات",
+      "MARKED_READY": "تحديد كجاهزة",
+      "TASK_STARTED": "بدء المهمة",
+      "TASK_STARTED_BY_FIRST_SCAN": "بدء المهمة بأول مسح",
+      "TASK_PAUSED": "إيقاف المهمة مؤقتًا",
+      "TASK_RESUMED": "استئناف المهمة",
+      "SUBMITTED_FOR_REVIEW": "إرسال المهمة للمراجعة",
+      "RETURNED_TO_PROGRESS": "إعادة المهمة للتنفيذ",
+      "TASK_COMPLETED": "إكمال المهمة",
+      "TASK_CANCELLED": "إلغاء المهمة",
+      "SCAN_SETTINGS_UPDATED": "تحديث إعدادات المسح"
+    },
+    "image": {
+      "title": "صورة المسح",
+      "alt": "صورة الباركود الملتقطة أثناء المسح",
+      "view": "عرض الصورة"
+    }
+  },
   "permissions": {
     "noCompanyViewPermission": "ليس لديك صلاحية عرض الشركات.",
     "noUserViewPermission": "ليس لديك صلاحية عرض المستخدمين.",

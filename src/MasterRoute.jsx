@@ -10,6 +10,7 @@ import Users from './pages/Users/index.js';
 import InventoryTasks from './pages/InventoryTasks/index.js';
 import Reports from './pages/Reports/index.js';
 import ChangePassword from './pages/Account/index.js';
+import TaskTrackingDetails from './pages/TaskTracking/index.js';
 
 function MasterRoute() {
   return (
@@ -33,6 +34,7 @@ function MasterRoute() {
             }
           >
             <Route path="inventory-tasks" element={<InventoryTasks />} />
+            <Route path="task-tracking/:taskId" element={<TaskTrackingDetails />} />
           </Route>
           <Route
             element={

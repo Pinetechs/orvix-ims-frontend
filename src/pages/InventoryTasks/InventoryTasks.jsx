@@ -3,7 +3,7 @@ import { Alert, Box, Button, Card, CardContent, Divider, Stack, Typography, useM
 import { alpha, useTheme } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
@@ -48,6 +48,7 @@ function InventoryTasks() {
   const { t } = useTranslation();
   const auth = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -141,6 +142,7 @@ function InventoryTasks() {
         cancelMutation.reset();
         setReasonDialog({ action: 'cancel', task: row });
       },
+      onTrack: (row) => navigate(`/task-tracking/${getTaskId(row)}`),
     });
 
     if (!isMobile) {
@@ -155,6 +157,7 @@ function InventoryTasks() {
     handleResumeLifecycle,
     isMobile,
     openAssignmentManager,
+    navigate,
     pauseMutation,
     scanSettingsMutation,
   ]);

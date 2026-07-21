@@ -93,6 +93,42 @@ export const resumeInventoryTask = async ({ taskId }) => {
   }
 };
 
+export const markInventoryTaskReady = async ({ taskId }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/ready-to-start`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not mark inventory task as ready'));
+  }
+};
+
+export const submitInventoryTaskForReview = async ({ taskId }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/review`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not submit inventory task for review'));
+  }
+};
+
+export const returnInventoryTaskToProgress = async ({ taskId, reason }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/return-to-progress`, { reason });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not return inventory task to progress'));
+  }
+};
+
+export const completeInventoryTask = async ({ taskId }) => {
+  try {
+    const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/complete`);
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Could not complete inventory task'));
+  }
+};
+
 export const cancelInventoryTask = async ({ taskId, reason }) => {
   try {
     const response = await apiClient.post(`${apiRoute.inventoryTasks}/${taskId}/cancel`, { reason });

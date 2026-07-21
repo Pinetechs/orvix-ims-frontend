@@ -7,6 +7,396 @@
   "login": "Login",
   "logout": "Logout",
   "changePassword": "Change Password",
+  "dashboardPage": {
+    "title": "Operational Dashboard",
+    "operationalSubtitle": "A live view of inventory execution across your permitted companies and domains.",
+    "administrationSubtitle": "Administration overview for companies and system users.",
+    "refresh": "Refresh",
+    "updatedAt": "Updated {{value}}",
+    "errorTitle": "Dashboard could not be loaded",
+    "errorText": "Check the connection and try again.",
+    "tryAgain": "Try again",
+    "staleDataWarning": "The latest refresh failed. The last available dashboard data is still shown.",
+    "adminOnlyTitle": "Operational tracking is not enabled for this role",
+    "adminOnlyText": "Your administration metrics are available above. Inventory execution remains limited to operational roles.",
+    "metrics": {
+      "activeTasks": "Active Tasks",
+      "activeTasksHint": "{{count}} ready to start",
+      "inProgress": "In Progress",
+      "inProgressHint": "{{count}} currently paused",
+      "underReview": "Under Review",
+      "underReviewHint": "{{count}} completed this month",
+      "attentionRequired": "Attention Required",
+      "attentionRequiredHint": "Across {{count}} affected tasks"
+    },
+    "execution": {
+      "title": "Execution Overview",
+      "subtitle": "Current accepted result for expected inventory items.",
+      "complete": "Complete",
+      "expected": "Expected",
+      "processed": "Processed",
+      "remaining": "Remaining",
+      "matched": "Matched",
+      "mismatched": "Mismatched",
+      "calculationNote": "Progress is calculated from each item's current accepted scan; duplicate and conflict events do not increase completion."
+    },
+    "domains": {
+      "title": "Progress by Inventory Domain",
+      "subtitle": "Execution status for every permitted inventory domain.",
+      "activeTasks": "{{count}} active tasks",
+      "names": {
+        "VEHICLE": "Vehicles",
+        "ASSET": "Assets",
+        "SPARE_PART": "Spare Parts"
+      }
+    },
+    "attention": {
+      "title": "Attention Required",
+      "subtitle": "Operational conditions that may require supervisor action.",
+      "stalledTasks": "Stalled tasks",
+      "tasksWithMismatches": "Tasks with mismatches",
+      "tasksMissingRequiredImages": "Missing required images",
+      "importFailedTasks": "Failed imports",
+      "tasksWithHighDuplicateRate": "High duplicate rate",
+      "openTasks": "Open inventory tasks"
+    },
+    "recentTasks": {
+      "title": "Recent Active Tasks",
+      "subtitle": "Most recently updated tasks within your access scope.",
+      "viewAll": "View all",
+      "open": "Open task",
+      "stalled": "Stalled",
+      "issues": "{{count}} issues",
+      "lastActivity": "Last activity: {{value}}",
+      "emptyTitle": "No active inventory tasks",
+      "emptyText": "New or reopened tasks will appear here automatically."
+    },
+    "statuses": {
+      "CREATED": "Created",
+      "DRAFT": "Draft",
+      "IMPORT_PENDING": "Import Pending",
+      "IMPORT_IN_PROGRESS": "Import In Progress",
+      "IMPORT_FAILED": "Import Failed",
+      "IMPORT_COMPLETED": "Import Completed",
+      "READY_FOR_ASSIGNMENT": "Ready for Assignment",
+      "READY_TO_START": "Ready to Start",
+      "IN_PROGRESS": "In Progress",
+      "PAUSED": "Paused",
+      "UNDER_REVIEW": "Under Review",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "administration": {
+      "title": "Administration Overview",
+      "subtitle": "Current company and user records available to your role.",
+      "totalCompanies": "Total Companies",
+      "activeCompanies": "Active Companies",
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users"
+    }
+  },
+  "taskTracking": {
+    "common": {
+      "loading": "Loading tracking data...",
+      "retry": "Retry",
+      "loadError": "Tracking data could not be loaded.",
+      "empty": "No records found",
+      "back": "Back",
+      "close": "Close",
+      "refresh": "Refresh",
+      "saving": "Saving...",
+      "allStatuses": "All statuses",
+      "code": "Code",
+      "expected": "Expected",
+      "actual": "Actual",
+      "staff": "Staff",
+      "invalidTask": "The task identifier is invalid.",
+      "staleWarning": "The latest refresh failed. The last available tracking data is still shown."
+    },
+    "duration": {
+      "daysHours": "{{days}}d {{hours}}h",
+      "hoursMinutes": "{{hours}}h {{minutes}}m",
+      "minutes": "{{minutes}}m"
+    },
+    "header": {
+      "back": "Back to inventory tasks",
+      "stalled": "Stalled",
+      "imageRequired": "Scan image required",
+      "generatedAt": "Updated {{value}}",
+      "manage": "Manage task",
+      "track": "Track task"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "areas": "Areas",
+      "team": "Team",
+      "attention": "Attention Required",
+      "results": "Results",
+      "scanEvents": "Scan Events",
+      "timeline": "Timeline"
+    },
+    "actions": {
+      "markReady": "Mark ready",
+      "start": "Start task",
+      "pause": "Pause",
+      "resume": "Resume",
+      "submitForReview": "Submit for review",
+      "returnToProgress": "Return to progress",
+      "complete": "Complete task",
+      "cancel": "Cancel task",
+      "reason": "Reason",
+      "reasonHelp": "{{count}}/500 · Required for audit history",
+      "failed": "The task action could not be completed.",
+      "success": {
+        "markReady": "Inventory task marked ready successfully.",
+        "start": "Inventory task started successfully.",
+        "pause": "Inventory task paused successfully.",
+        "resume": "Inventory task resumed successfully.",
+        "submitForReview": "Inventory task submitted for review.",
+        "returnToProgress": "Inventory task returned to progress.",
+        "complete": "Inventory task completed successfully.",
+        "cancel": "Inventory task cancelled and retained for audit."
+      },
+      "dialog": {
+        "markReady": { "title": "Mark task ready", "message": "Confirm that importing and assignments are ready for execution." },
+        "start": { "title": "Start inventory task", "message": "The task becomes available for active inventory scanning." },
+        "pause": { "title": "Pause inventory task", "message": "Scanning stops while the task is paused. Enter the operational reason." },
+        "resume": { "title": "Resume inventory task", "message": "Scanning becomes available again using the current assignments." },
+        "submitForReview": { "title": "Submit task for review", "message": "Execution stops and the task moves to supervisor review." },
+        "returnToProgress": { "title": "Return task to progress", "message": "The task reopens for scanning. Explain what must be corrected or completed." },
+        "complete": { "title": "Complete inventory task", "message": "This closes the reviewed task and preserves its final results and audit history." },
+        "cancel": { "title": "Cancel inventory task", "message": "The task remains available as a read-only cancelled audit record." }
+      }
+    },
+    "overview": {
+      "paused": "This task is currently paused.",
+      "executionTitle": "Execution Progress",
+      "executionSubtitle": "Current accepted result for expected inventory items.",
+      "quantityTitle": "Quantity Variance",
+      "activityTitle": "Scan Activity",
+      "activitySubtitle": "Audit events do not increase the accepted completion count.",
+      "timingTitle": "Task Timing",
+      "metrics": {
+        "expected": "Expected",
+        "processed": "Processed",
+        "matched": "Matched",
+        "mismatched": "Mismatched",
+        "remaining": "Remaining"
+      },
+      "quantities": {
+        "totalExpectedQuantity": "Expected Qty",
+        "actualQuantity": "Actual Qty",
+        "shortageQuantity": "Shortage",
+        "overageQuantity": "Overage",
+        "netVarianceQuantity": "Net Variance"
+      },
+      "events": {
+        "totalEvents": "Total Events",
+        "duplicates": "Duplicates",
+        "conflicts": "Conflicts",
+        "corrections": "Corrections",
+        "extras": "Extras"
+      },
+      "timing": {
+        "startedAt": "Started at",
+        "lastActivityAt": "Last scan activity",
+        "activeTime": "Active working time",
+        "reviewStartedAt": "Review started",
+        "closedAt": "Closed at"
+      }
+    },
+    "areaStatuses": {
+      "NOT_STARTED": "Not Started",
+      "ACTIVE": "Active",
+      "STALLED": "Stalled",
+      "COMPLETED": "Completed"
+    },
+    "areaLevels": {
+      "STORE": "Store",
+      "LOCATION": "Location",
+      "FLOOR": "Floor",
+      "PLACE": "Place",
+      "BRANCH": "Branch"
+    },
+    "areas": {
+      "title": "Area Progress",
+      "subtitle": "Progress, assignments and last activity for every inventory area.",
+      "search": "Search area or staff",
+      "empty": "No areas match the current filters.",
+      "columns": {
+        "area": "Area",
+        "status": "Status",
+        "progress": "Progress",
+        "planned": "Planned",
+        "processed": "Processed",
+        "mismatched": "Mismatch",
+        "events": "Scan Events",
+        "staff": "Assigned Staff",
+        "lastActivity": "Last Activity"
+      }
+    },
+    "team": {
+      "title": "Assigned Team",
+      "subtitle": "Accepted results and scan activity by inventory staff member.",
+      "empty": "No staff assignments or activity found.",
+      "assigned": "Assigned",
+      "previous": "Previous",
+      "columns": {
+        "member": "Team Member",
+        "areas": "Assigned Areas",
+        "accepted": "Accepted",
+        "matched": "Matched",
+        "mismatched": "Mismatch",
+        "events": "Events",
+        "duplicates": "Duplicates",
+        "conflicts": "Conflicts",
+        "corrections": "Corrections",
+        "extras": "Extras",
+        "lastActivity": "Last Activity",
+        "inactive": "Inactive For"
+      }
+    },
+    "attention": {
+      "title": "Attention Items",
+      "subtitle": "Current conditions requiring review or supervisor follow-up.",
+      "empty": "No current attention items.",
+      "filteredEmpty": "No attention items match the selected filter.",
+      "resultsCount": "{{count}} items",
+      "filters": {
+        "all": "All issue types",
+        "clear": "Clear filter"
+      },
+      "truncated": "Only the highest-priority attention items are shown. Use Results and Scan Events for the full record.",
+      "summary": {
+        "totalIssues": "Total Issues",
+        "currentMismatches": "Current Mismatches",
+        "missingRequiredImages": "Missing Images",
+        "extraEvents": "Extra Events",
+        "uniqueUnexpectedCodes": "Unexpected Codes",
+        "conflicts": "Conflicts",
+        "staffNotes": "Staff Notes",
+        "stalledAreas": "Stalled Areas",
+        "notStartedAreas": "Not Started Areas"
+      },
+      "flags": {
+        "importFailed": "Import failed",
+        "highDuplicateRate": "High duplicate rate",
+        "readyForReview": "Ready for review"
+      },
+      "types": {
+        "MISMATCH": "Mismatch",
+        "EXTRA": "Extra",
+        "CONFLICT": "Conflict",
+        "MISSING_IMAGE": "Missing Image",
+        "STAFF_NOTE": "Staff Note",
+        "STALLED_AREA": "Stalled Area",
+        "READY_FOR_REVIEW": "Ready for Review",
+        "IMPORT_FAILED": "Import Failed",
+        "HIGH_DUPLICATE_RATE": "High Duplicate Rate",
+        "AREA_NOT_STARTED": "Area Not Started"
+      }
+    },
+    "resultFilters": {
+      "ALL": "All Results",
+      "MATCHED": "Matched",
+      "MISMATCHED": "Mismatched",
+      "REMAINING": "Not Counted",
+      "MISSING_IMAGE": "Missing Image",
+      "NOTES": "With Notes"
+    },
+    "results": {
+      "title": "Current Inventory Results",
+      "subtitle": "One current accepted result per expected inventory item.",
+      "search": "Search code or description",
+      "clearSearch": "Clear search",
+      "clearFilters": "Clear filters",
+      "resultsCount": "{{count}} results",
+      "empty": "No results match the current filters.",
+      "scanHistory": {
+        "open": "View scan history",
+        "title": "Scan history",
+        "subtitle": "Chronological audit trail for this inventory result.",
+        "eventCount": "{{count}} events",
+        "current": "Current accepted scan",
+        "empty": "No scan events were found for this result.",
+        "truncated": "Only the latest 100 matching scan events are shown."
+      },
+      "columns": {
+        "code": "Code",
+        "description": "Description",
+        "status": "Result",
+        "expectedArea": "Expected Area",
+        "actualArea": "Actual Area",
+        "expectedQuantity": "Expected Qty",
+        "actualQuantity": "Actual Qty",
+        "variance": "Variance",
+        "acceptedBy": "Accepted By",
+        "acceptedAt": "Accepted At",
+        "details": "Details"
+      }
+    },
+    "eventTypes": {
+      "ALL": "All Event Types",
+      "FIRST_SCAN": "First Scan",
+      "DUPLICATE": "Duplicate",
+      "CONFLICT": "Conflict",
+      "EXTRA": "Extra",
+      "AMBIGUOUS": "Ambiguous",
+      "CORRECTION": "Correction"
+    },
+    "scanEvents": {
+      "title": "Scan Event Audit",
+      "subtitle": "Chronological scan evidence including duplicates, conflicts and corrections.",
+      "search": "Search scanned code",
+      "clearSearch": "Clear search",
+      "clearFilters": "Clear filters",
+      "resultsCount": "{{count}} events",
+      "empty": "No scan events match the current filters.",
+      "columns": {
+        "code": "Scanned Code",
+        "eventType": "Event Type",
+        "result": "Result",
+        "expectedArea": "Expected Area",
+        "actualArea": "Actual Area",
+        "expectedQuantity": "Expected Qty",
+        "actualQuantity": "Actual Qty",
+        "variance": "Variance",
+        "scannedBy": "Scanned By",
+        "scannedAt": "Scanned At",
+        "device": "Device",
+        "details": "Evidence"
+      }
+    },
+    "timeline": {
+      "title": "Task Timeline",
+      "subtitle": "Lifecycle, import, assignment and configuration activity.",
+      "empty": "No timeline activity found.",
+      "system": "System"
+    },
+    "activityTypes": {
+      "TASK_CREATED": "Task created",
+      "IMPORT_QUEUED": "Import queued",
+      "IMPORT_STARTED": "Import started",
+      "IMPORT_COMPLETED": "Import completed",
+      "IMPORT_FAILED": "Import failed",
+      "ASSIGNMENTS_UPDATED": "Assignments updated",
+      "MARKED_READY": "Marked ready",
+      "TASK_STARTED": "Task started",
+      "TASK_STARTED_BY_FIRST_SCAN": "Started by first scan",
+      "TASK_PAUSED": "Task paused",
+      "TASK_RESUMED": "Task resumed",
+      "SUBMITTED_FOR_REVIEW": "Submitted for review",
+      "RETURNED_TO_PROGRESS": "Returned to progress",
+      "TASK_COMPLETED": "Task completed",
+      "TASK_CANCELLED": "Task cancelled",
+      "SCAN_SETTINGS_UPDATED": "Scan settings updated"
+    },
+    "image": {
+      "title": "Scan Image",
+      "alt": "Captured barcode scan",
+      "view": "View Image"
+    }
+  },
   "permissions": {
     "noCompanyViewPermission": "You don't have permission to view companies.",
     "noUserViewPermission": "You don't have permission to view users.",

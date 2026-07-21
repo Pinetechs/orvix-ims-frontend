@@ -8,6 +8,8 @@ import PauseCircleOutlineRoundedIcon from '@mui/icons-material/PauseCircleOutlin
 import PlayCircleOutlineRoundedIcon from '@mui/icons-material/PlayCircleOutlineRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import { useTranslation } from 'react-i18next';
 
 import {
   canAssignInventoryTask,
@@ -24,15 +26,18 @@ function InventoryTaskActionsMenu({
   onResume,
   onDelete,
   onCancel,
+  onTrack,
 }) {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
   const actions = resolveAllowedActions(row);
   const canUpdate = canUpdateInventoryTask(auth, row);
   const canAssign = canAssignInventoryTask(auth, row);
 
-  const hasAction =
+  const hasManagementAction =
     (canUpdate && (actions.editScanSettings || actions.pause || actions.resume || actions.delete || actions.deleteRequiresPause || actions.cancel))
     || (canAssign && actions.editAssignments);
+  const hasAction = Boolean(onTrack) || hasManagementAction;
 
   if (!hasAction) return null;
 
@@ -62,6 +67,15 @@ function InventoryTaskActionsMenu({
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
+        {onTrack && (
+          <MenuItem onClick={() => closeAndRun(onTrack)}>
+            <VisibilityOutlinedIcon fontSize="small" sx={{ mr: 1 }} />
+            {t('taskTracking.header.track')}
+          </MenuItem>
+        )}
+
+        {onTrack && hasManagementAction && <Divider />}
+
         {canUpdate && actions.editScanSettings && (
           <MenuItem onClick={() => closeAndRun(onEditScanSettings)}>
             <TuneRoundedIcon fontSize="small" sx={{ mr: 1 }} />

@@ -56,6 +56,7 @@ export const createInventoryTaskTableColumns = ({
   onResume,
   onDelete,
   onCancel,
+  onTrack,
 } = {}) => [
   {
     field: 'task',
@@ -260,6 +261,7 @@ export const createInventoryTaskTableColumns = ({
         onResume={onResume}
         onDelete={onDelete}
         onCancel={onCancel}
+        onTrack={onTrack}
       />
     ),
   },

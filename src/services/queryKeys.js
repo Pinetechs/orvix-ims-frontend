@@ -1,4 +1,8 @@
 export const queryKeys = {
+  dashboard: {
+    all: ['dashboard'],
+    overview: ['dashboard', 'overview'],
+  },
   settings: {
     all: ['settings'],
   },
@@ -28,6 +32,19 @@ export const queryKeys = {
     list: (params) => ['inventory-tasks', 'list', params],
     details: (id) => ['inventory-tasks', 'details', id],
     eligibleStaff: (id) => ['inventory-tasks', 'details', id, 'eligible-staff'],
+  },
+  taskTracking: {
+    all: ['task-tracking'],
+    lists: () => ['task-tracking', 'list'],
+    list: (params) => ['task-tracking', 'list', params],
+    task: (taskId) => ['task-tracking', 'task', String(taskId)],
+    overview: (taskId) => ['task-tracking', 'task', String(taskId), 'overview'],
+    areas: (taskId) => ['task-tracking', 'task', String(taskId), 'areas'],
+    team: (taskId) => ['task-tracking', 'task', String(taskId), 'team'],
+    attention: (taskId) => ['task-tracking', 'task', String(taskId), 'attention'],
+    results: (taskId, params) => ['task-tracking', 'task', String(taskId), 'results', params],
+    scanEvents: (taskId, params) => ['task-tracking', 'task', String(taskId), 'scan-events', params],
+    timeline: (taskId, params) => ['task-tracking', 'task', String(taskId), 'timeline', params],
   },
   vehicleInventory: {
     all: ['vehicle-inventory'],

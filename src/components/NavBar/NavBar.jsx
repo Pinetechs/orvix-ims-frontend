@@ -5,6 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import LeftNav from '../LeftNav/index.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import Logo from '../../assets/images/logo/orvix-ims-logo.svg';
@@ -19,6 +20,7 @@ const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await auth.logout();
@@ -76,7 +78,7 @@ const NavBar = () => {
                 Orvix ERP
               </Typography>
               <Typography sx={{ color: 'text.secondary', fontSize: '0.74rem', fontWeight: 750 }}>
-                Inventory Management
+                {t('loginPage.systemTagline')}
               </Typography>
             </Box>
           </Box>
@@ -101,7 +103,7 @@ const NavBar = () => {
                   setAnchorEl(null);
                 }}
               >
-                Change Password
+                {t('changePassword')}
               </MenuItem>
             </Menu>
             <LogoutIcon
