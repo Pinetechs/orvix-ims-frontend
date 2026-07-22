@@ -18,7 +18,9 @@ import {
 } from '@mui/material';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 import { TrackingEmpty, TrackingError, TrackingLoading } from '../components/TrackingState.jsx';
 import { clampTrackingPercentage, formatTrackingDateTime, formatTrackingNumber, userDisplayName } from '../utils/trackingFormatters.js';
@@ -31,6 +33,7 @@ import {
 } from '../components/trackingStyles.js';
 
 const STATUS_COLORS = { NOT_STARTED: 'default', ACTIVE: 'primary', STALLED: 'error', COMPLETED: 'success' };
+const AREA_LEVEL_ORDER = ['BRANCH', 'STORE', 'LOCATION', 'FLOOR', 'PLACE'];
 
 const areaDepth = (area, byKey, seen = new Set()) => {
   if (!area?.parentKey || seen.has(area.key)) return 0;
@@ -40,21 +43,75 @@ const areaDepth = (area, byKey, seen = new Set()) => {
   return 1 + areaDepth(parent, byKey, seen);
 };
 
+const areaId = (area) => area?.id ?? area?.areaId;
+
+const areaAncestors = (area, byId) => {
+  if (area?.rootAreaId == null) return [];
+  const ancestors = [];
+  const seen = new Set();
+  const currentId = areaId(area);
+  if (currentId != null) seen.add(String(currentId));
+  let parentId = area.rootAreaId;
+
+  while (parentId != null) {
+    const parentKey = String(parentId);
+    if (seen.has(parentKey)) break;
+    seen.add(parentKey);
+    const parent = byId.get(parentKey);
+    if (!parent) break;
+    ancestors.unshift(parent);
+    parentId = parent.rootAreaId;
+  }
+
+  return ancestors;
+};
+
+const areaName = (area) => area?.name || area?.code || '-';
+
 function AreasTab({ query }) {
   const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
   const rows = useMemo(() => (Array.isArray(query.data) ? query.data : []), [query.data]);
   const number = (value) => formatTrackingNumber(value, i18n.language);
+  const availableLevels = useMemo(() => {
+    const levels = new Set(rows.map((row) => row.level).filter(Boolean));
+    return [
+      ...AREA_LEVEL_ORDER.filter((level) => levels.has(level)),
+      ...[...levels].filter((level) => !AREA_LEVEL_ORDER.includes(level)).sort(),
+    ];
+  }, [rows]);
+  const byId = useMemo(() => new Map(
+    rows
+      .filter((row) => areaId(row) != null)
+      .map((row) => [String(areaId(row)), row]),
+  ), [rows]);
+  const ancestorsByRow = useMemo(() => new Map(
+    rows.map((row) => [row, areaAncestors(row, byId)]),
+  ), [byId, rows]);
+  const parentPathByRow = useMemo(() => new Map(
+    rows.map((row) => [row, (ancestorsByRow.get(row) || []).map(areaName).join(' / ')]),
+  ), [ancestorsByRow, rows]);
+  const requestedLevel = searchParams.get('areaLevel');
+  const level = availableLevels.includes(requestedLevel) ? requestedLevel : 'ALL';
+
+  const handleLevelChange = (nextLevel) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextLevel === 'ALL') next.delete('areaLevel');
+    else next.set('areaLevel', nextLevel);
+    setSearchParams(next, { replace: true });
+  };
 
   const visibleRows = useMemo(() => {
     const normalized = search.trim().toLowerCase();
     return rows.filter((row) => {
       const matchesStatus = status === 'ALL' || row.status === status;
-      const haystack = `${row.code || ''} ${row.name || ''} ${(row.assignedStaff || []).map(userDisplayName).join(' ')}`.toLowerCase();
-      return matchesStatus && (!normalized || haystack.includes(normalized));
+      const matchesLevel = level === 'ALL' || row.level === level;
+      const haystack = `${row.code || ''} ${row.name || ''} ${parentPathByRow.get(row) || ''} ${(row.assignedStaff || []).map(userDisplayName).join(' ')}`.toLowerCase();
+      return matchesStatus && matchesLevel && (!normalized || haystack.includes(normalized));
     });
-  }, [rows, search, status]);
+  }, [level, parentPathByRow, rows, search, status]);
 
   const byKey = useMemo(() => new Map(rows.map((row) => [row.key, row])), [rows]);
 
@@ -87,6 +144,12 @@ function AreasTab({ query }) {
                 <MenuItem value={value} key={value}>{t(`taskTracking.areaStatuses.${value}`)}</MenuItem>
               ))}
             </TextField>
+            <TextField select size="small" value={level} onChange={(event) => handleLevelChange(event.target.value)} sx={{ minWidth: 170 }}>
+              <MenuItem value="ALL">{t('taskTracking.areas.allLevels')}</MenuItem>
+              {availableLevels.map((value) => (
+                <MenuItem value={value} key={value}>{t(`taskTracking.areaLevels.${value}`, { defaultValue: value })}</MenuItem>
+              ))}
+            </TextField>
           </Stack>
         </Stack>
 
@@ -107,7 +170,9 @@ function AreasTab({ query }) {
               <TableBody>
                 {visibleRows.map((row) => {
                   const progress = clampTrackingPercentage(row.progressPercentage);
-                  const depth = areaDepth(row, byKey);
+                  const ancestors = ancestorsByRow.get(row) || [];
+                  const parentPath = parentPathByRow.get(row);
+                  const depth = ancestors.length || areaDepth(row, byKey);
                   return (
                     <TableRow key={row.key} hover>
                       <TableCell>
@@ -116,6 +181,14 @@ function AreasTab({ query }) {
                           <Typography color="text.secondary" sx={{ fontSize: '0.72rem' }}>
                             {t(`taskTracking.areaLevels.${row.level}`)}{row.code ? ` · ${row.code}` : ''}
                           </Typography>
+                          {parentPath && (
+                            <Stack direction="row" spacing={0.45} alignItems="center" sx={{ mt: 0.45, color: 'text.secondary', minWidth: 0 }}>
+                              <LocationOnOutlinedIcon sx={{ fontSize: 14, flexShrink: 0 }} />
+                              <Typography title={parentPath} noWrap sx={{ fontSize: '0.7rem', maxWidth: 360 }}>
+                                {t('taskTracking.areas.locatedIn')}: {parentPath}
+                              </Typography>
+                            </Stack>
+                          )}
                         </Box>
                       </TableCell>
                       <TableCell>

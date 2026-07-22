@@ -111,6 +111,7 @@ function TaskTrackingDetails() {
     next.delete('filter');
     next.delete('search');
     next.delete('attentionType');
+    next.delete('areaLevel');
     next.delete('sortBy');
     next.delete('sortOrder');
     if (nextTab === 'overview') next.delete('tab');

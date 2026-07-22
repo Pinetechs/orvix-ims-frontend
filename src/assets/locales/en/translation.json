@@ -222,6 +222,8 @@
       "title": "Area Progress",
       "subtitle": "Progress, assignments and last activity for every inventory area.",
       "search": "Search area or staff",
+      "allLevels": "All levels",
+      "locatedIn": "Located in",
       "empty": "No areas match the current filters.",
       "columns": {
         "area": "Area",
