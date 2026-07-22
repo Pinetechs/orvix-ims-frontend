@@ -275,6 +275,7 @@
         "missingRequiredImages": "Missing Images",
         "extraEvents": "Extra Events",
         "uniqueUnexpectedCodes": "Unexpected Codes",
+        "ambiguousEvents": "Ambiguous Codes",
         "conflicts": "Conflicts",
         "staffNotes": "Staff Notes",
         "stalledAreas": "Stalled Areas",
@@ -288,6 +289,7 @@
       "types": {
         "MISMATCH": "Mismatch",
         "EXTRA": "Extra",
+        "AMBIGUOUS": "Ambiguous",
         "CONFLICT": "Conflict",
         "MISSING_IMAGE": "Missing Image",
         "STAFF_NOTE": "Staff Note",

@@ -15,6 +15,7 @@ import { trackingPanelSx, trackingSectionIconSx, trackingToolbarSx } from '../co
 const ATTENTION_COLORS = {
   MISMATCH: 'error',
   EXTRA: 'warning',
+  AMBIGUOUS: 'error',
   CONFLICT: 'error',
   MISSING_IMAGE: 'warning',
   STAFF_NOTE: 'info',
@@ -33,6 +34,7 @@ const SUMMARY_TONES = {
   missingRequiredImages: 'warning',
   extraEvents: 'warning',
   uniqueUnexpectedCodes: 'warning',
+  ambiguousEvents: 'error',
   conflicts: 'error',
   staffNotes: 'info',
   stalledAreas: 'error',
@@ -45,6 +47,7 @@ const SUMMARY_FILTERS = {
   missingRequiredImages: 'MISSING_IMAGE',
   extraEvents: 'EXTRA',
   uniqueUnexpectedCodes: 'EXTRA',
+  ambiguousEvents: 'AMBIGUOUS',
   conflicts: 'CONFLICT',
   staffNotes: 'STAFF_NOTE',
   stalledAreas: 'STALLED_AREA',
@@ -73,7 +76,7 @@ function AttentionTab({ query, onOpenImage }) {
   if (query.isError && !query.data) return <TrackingError error={query.error} onRetry={query.refetch} />;
 
   const summaryKeys = [
-    'totalIssues', 'currentMismatches', 'missingRequiredImages', 'extraEvents', 'uniqueUnexpectedCodes',
+    'totalIssues', 'currentMismatches', 'missingRequiredImages', 'extraEvents', 'uniqueUnexpectedCodes', 'ambiguousEvents',
     'conflicts', 'staffNotes', 'stalledAreas', 'notStartedAreas',
   ];
 

@@ -275,6 +275,7 @@
         "missingRequiredImages": "الصور المفقودة",
         "extraEvents": "الأحداث الإضافية",
         "uniqueUnexpectedCodes": "الرموز غير المتوقعة",
+        "ambiguousEvents": "الرموز الملتبسة",
         "conflicts": "التعارضات",
         "staffNotes": "ملاحظات الموظفين",
         "stalledAreas": "المناطق المتوقفة",
@@ -288,6 +289,7 @@
       "types": {
         "MISMATCH": "اختلاف",
         "EXTRA": "إضافة",
+        "AMBIGUOUS": "ملتبس",
         "CONFLICT": "تعارض",
         "MISSING_IMAGE": "صورة مفقودة",
         "STAFF_NOTE": "ملاحظة موظف",

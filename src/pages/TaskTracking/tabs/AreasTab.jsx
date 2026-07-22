@@ -43,24 +43,19 @@ const areaDepth = (area, byKey, seen = new Set()) => {
   return 1 + areaDepth(parent, byKey, seen);
 };
 
-const areaId = (area) => area?.id ?? area?.areaId;
-
-const areaAncestors = (area, byId) => {
-  if (area?.rootAreaId == null) return [];
+const areaAncestors = (area, byKey) => {
+  if (!area?.parentKey) return [];
   const ancestors = [];
   const seen = new Set();
-  const currentId = areaId(area);
-  if (currentId != null) seen.add(String(currentId));
-  let parentId = area.rootAreaId;
+  let parentKey = area.parentKey;
 
-  while (parentId != null) {
-    const parentKey = String(parentId);
+  while (parentKey) {
     if (seen.has(parentKey)) break;
     seen.add(parentKey);
-    const parent = byId.get(parentKey);
+    const parent = byKey.get(parentKey);
     if (!parent) break;
     ancestors.unshift(parent);
-    parentId = parent.rootAreaId;
+    parentKey = parent.parentKey;
   }
 
   return ancestors;
@@ -74,6 +69,7 @@ function AreasTab({ query }) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
   const rows = useMemo(() => (Array.isArray(query.data) ? query.data : []), [query.data]);
+  const byKey = useMemo(() => new Map(rows.map((row) => [row.key, row])), [rows]);
   const number = (value) => formatTrackingNumber(value, i18n.language);
   const availableLevels = useMemo(() => {
     const levels = new Set(rows.map((row) => row.level).filter(Boolean));
@@ -82,14 +78,9 @@ function AreasTab({ query }) {
       ...[...levels].filter((level) => !AREA_LEVEL_ORDER.includes(level)).sort(),
     ];
   }, [rows]);
-  const byId = useMemo(() => new Map(
-    rows
-      .filter((row) => areaId(row) != null)
-      .map((row) => [String(areaId(row)), row]),
-  ), [rows]);
   const ancestorsByRow = useMemo(() => new Map(
-    rows.map((row) => [row, areaAncestors(row, byId)]),
-  ), [byId, rows]);
+    rows.map((row) => [row, areaAncestors(row, byKey)]),
+  ), [byKey, rows]);
   const parentPathByRow = useMemo(() => new Map(
     rows.map((row) => [row, (ancestorsByRow.get(row) || []).map(areaName).join(' / ')]),
   ), [ancestorsByRow, rows]);
@@ -112,8 +103,6 @@ function AreasTab({ query }) {
       return matchesStatus && matchesLevel && (!normalized || haystack.includes(normalized));
     });
   }, [level, parentPathByRow, rows, search, status]);
-
-  const byKey = useMemo(() => new Map(rows.map((row) => [row.key, row])), [rows]);
 
   if (query.isLoading) return <TrackingLoading />;
   if (query.isError && !query.data) return <TrackingError error={query.error} onRetry={query.refetch} />;
