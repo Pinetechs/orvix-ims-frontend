@@ -31,7 +31,9 @@ export const queryKeys = {
     all: ['inventory-tasks'],
     list: (params) => ['inventory-tasks', 'list', params],
     details: (id) => ['inventory-tasks', 'details', id],
-    eligibleStaff: (id) => ['inventory-tasks', 'details', id, 'eligible-staff'],
+    eligibleStaff: (id, params) => params
+      ? ['inventory-tasks', 'details', id, 'eligible-staff', params]
+      : ['inventory-tasks', 'details', id, 'eligible-staff'],
   },
   taskTracking: {
     all: ['task-tracking'],
@@ -45,6 +47,25 @@ export const queryKeys = {
     results: (taskId, params) => ['task-tracking', 'task', String(taskId), 'results', params],
     scanEvents: (taskId, params) => ['task-tracking', 'task', String(taskId), 'scan-events', params],
     timeline: (taskId, params) => ['task-tracking', 'task', String(taskId), 'timeline', params],
+  },
+  reviewCenter: {
+    all: ['review-center'],
+    task: (taskId) => ['review-center', 'task', String(taskId)],
+    summary: (taskId) => ['review-center', 'task', String(taskId), 'summary'],
+    issues: (taskId, params) => ['review-center', 'task', String(taskId), 'issues', params],
+    issue: (taskId, issueId) => ['review-center', 'task', String(taskId), 'issues', String(issueId)],
+    rechecks: (taskId, params) => ['review-center', 'task', String(taskId), 'rechecks', params],
+    recheck: (taskId, requestId) => ['review-center', 'task', String(taskId), 'rechecks', String(requestId)],
+    evidence: (taskId, requestId, itemId) => [
+      'review-center',
+      'task',
+      String(taskId),
+      'rechecks',
+      String(requestId),
+      'items',
+      String(itemId),
+      'evidence',
+    ],
   },
   vehicleInventory: {
     all: ['vehicle-inventory'],

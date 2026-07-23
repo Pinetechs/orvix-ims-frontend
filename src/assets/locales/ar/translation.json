@@ -131,6 +131,7 @@
       "areas": "المناطق",
       "team": "الفريق",
       "attention": "تحتاج إلى انتباه",
+      "review": "مركز المراجعة",
       "results": "النتائج",
       "scanEvents": "أحداث المسح",
       "timeline": "السجل الزمني"
@@ -377,6 +378,182 @@
       "empty": "لا توجد أنشطة في السجل الزمني.",
       "system": "النظام"
     },
+    "review": {
+      "title": "مركز المراجعة",
+      "subtitle": "معالجة اختلافات الجرد، وطلب إعادة تحقق محددة، وحفظ جميع قرارات المشرف في سجل التدقيق.",
+      "synchronize": "مزامنة المشكلات",
+      "notUnderReview": "بيانات المراجعة متاحة للعرض فقط. يمكن إنشاء الطلبات واتخاذ القرارات عندما تكون المهمة تحت المراجعة.",
+      "readyToComplete": "تم إغلاق جميع المشكلات المانعة وطلبات إعادة التحقق النشطة. المهمة جاهزة للإكمال.",
+      "sections": {
+        "issues": "مشكلات المراجعة",
+        "rechecks": "طلبات إعادة التحقق"
+      },
+      "summary": {
+        "blockingOpenIssues": "مشكلات مفتوحة مانعة",
+        "activeRecheckRequests": "طلبات إعادة تحقق نشطة",
+        "submittedIssues": "بانتظار قرار المشرف",
+        "resolvedIssues": "مشكلات تمت معالجتها"
+      },
+      "filters": {
+        "allStatuses": "جميع الحالات",
+        "allTypes": "جميع أنواع المشكلات"
+      },
+      "issueTypes": {
+        "NOT_PROCESSED": "لم تتم معالجته",
+        "LOCATION_MISMATCH": "اختلاف في الموقع",
+        "QUANTITY_SHORTAGE": "نقص في الكمية",
+        "QUANTITY_OVERAGE": "زيادة في الكمية",
+        "CONFLICT": "نتائج متعارضة",
+        "EXTRA": "عنصر إضافي",
+        "AMBIGUOUS": "عنصر غير محدد"
+      },
+      "issueStatuses": {
+        "OPEN": "مفتوحة",
+        "RECHECK_REQUESTED": "طُلبت إعادة التحقق",
+        "RECHECK_IN_PROGRESS": "إعادة التحقق قيد التنفيذ",
+        "RECHECK_SUBMITTED": "تم إرسال إعادة التحقق",
+        "RESOLVED": "تمت المعالجة",
+        "SUPERSEDED": "استُبدلت"
+      },
+      "recheckStatuses": {
+        "PENDING": "بانتظار البدء",
+        "IN_PROGRESS": "قيد التنفيذ",
+        "SUBMITTED": "تم الإرسال",
+        "COMPLETED": "مكتمل",
+        "CANCELLED": "ملغي"
+      },
+      "recheckItemStatuses": {
+        "PENDING": "بانتظار التحقق",
+        "SUBMITTED": "تم الإرسال",
+        "ACCEPTED": "معتمد",
+        "REJECTED": "غير معتمد",
+        "CANCELLED": "ملغي"
+      },
+      "recheckResults": {
+        "FOUND_MATCHED": "تم العثور عليه في الموقع المتوقع",
+        "FOUND_DIFFERENT_LOCATION": "تم العثور عليه في موقع مختلف",
+        "QUANTITY_CONFIRMED": "تم تأكيد الكمية",
+        "QUANTITY_DIFFERENT": "الكمية مختلفة",
+        "NOT_FOUND": "لم يتم العثور عليه",
+        "UNABLE_TO_VERIFY": "تعذر التحقق"
+      },
+      "decisions": {
+        "ACCEPT_RECHECK_RESULT": "اعتماد نتيجة إعادة التحقق",
+        "KEEP_CURRENT_RESULT": "الإبقاء على النتيجة الحالية",
+        "CONFIRM_MISSING": "تأكيد أن العنصر مفقود",
+        "CONFIRM_DESTROYED": "تأكيد أن العنصر تالف",
+        "CONFIRM_EXTRA": "تأكيد العنصر الإضافي",
+        "REQUEST_ANOTHER_RECHECK": "طلب إعادة تحقق أخرى"
+      },
+      "reasons": {
+        "RECHECK_CONFIRMED": "تم التأكيد بإعادة التحقق",
+        "COUNTING_ERROR": "خطأ في العد",
+        "WRONG_LOCATION_SELECTED": "تم اختيار موقع خاطئ",
+        "ITEM_MOVED": "تم نقل العنصر",
+        "ITEM_MISSING": "العنصر مفقود",
+        "ITEM_DESTROYED": "العنصر تالف",
+        "ITEM_NOT_IN_SOURCE_DATA": "العنصر غير موجود في بيانات المصدر",
+        "DUPLICATE_SOURCE_RECORD": "سجل مكرر في بيانات المصدر",
+        "BARCODE_DAMAGED": "الباركود تالف",
+        "SOURCE_DATA_ERROR": "خطأ في بيانات المصدر",
+        "ACCESS_RESTRICTED": "تعذر الوصول إلى الموقع",
+        "OTHER": "سبب آخر"
+      },
+      "issues": {
+        "title": "مشكلات المراجعة",
+        "subtitle": "الاختلافات الحالية الناتجة عن النتائج المعتمدة وأحداث المسح.",
+        "resultsCount": "{{count}} مشكلة",
+        "search": "البحث بالعنصر أو الوصف أو موقع العمل",
+        "status": "الحالة",
+        "type": "نوع المشكلة",
+        "item": "العنصر",
+        "description": "الوصف",
+        "workArea": "موقع العمل",
+        "expected": "المتوقع",
+        "actual": "الفعلي",
+        "expectedQuantity": "الكمية المتوقعة",
+        "actualQuantity": "الكمية الفعلية",
+        "detectedAt": "وقت الاكتشاف",
+        "actions": "الإجراءات",
+        "view": "عرض المشكلة",
+        "blocking": "تمنع إكمال المهمة",
+        "empty": "لا توجد مشكلات مراجعة تطابق عوامل التصفية.",
+        "createRecheck": "إنشاء إعادة تحقق ({{count}})"
+      },
+      "issueDetails": {
+        "title": "تفاصيل مشكلة المراجعة",
+        "history": "سجل قرارات المشرف",
+        "noHistory": "لم يتم تسجيل قرار للمشرف على هذه المشكلة.",
+        "currentScan": "صورة المسح الحالي",
+        "sourceScan": "صورة المسح المسبب للمشكلة",
+        "resolve": "تسجيل قرار"
+      },
+      "create": {
+        "title": "إنشاء طلب إعادة تحقق",
+        "selection": "{{count}} مشكلة في {{area}}",
+        "assignedTo": "موظف الجرد المسؤول",
+        "instructions": "تعليمات المشرف",
+        "instructionsHelp": "{{count}} / 1500 حرف",
+        "dueAt": "الموعد المطلوب",
+        "dueAtFuture": "يجب أن يكون الموعد المطلوب في المستقبل.",
+        "imageRequired": "إلزام الموظف بإرفاق صورة",
+        "submit": "إنشاء الطلب"
+      },
+      "decision": {
+        "issueTitle": "معالجة مشكلة المراجعة",
+        "itemTitle": "مراجعة نتيجة إعادة التحقق",
+        "decision": "قرار المشرف",
+        "reason": "السبب",
+        "note": "ملاحظة القرار",
+        "noteHelp": "{{count}} / 1000 حرف. الملاحظة إلزامية عند اختيار سبب آخر أو طلب إعادة تحقق جديدة.",
+        "confirm": "حفظ القرار"
+      },
+      "rechecks": {
+        "title": "طلبات إعادة التحقق",
+        "subtitle": "تكليفات محددة ترسل لموظفي الجرد لجمع نتيجة ودليل إضافيين.",
+        "resultsCount": "{{count}} طلب",
+        "number": "رقم الطلب",
+        "status": "الحالة",
+        "workArea": "موقع العمل",
+        "assignedTo": "الموظف المسؤول",
+        "items": "العناصر",
+        "dueAt": "الموعد المطلوب",
+        "createdAt": "تاريخ الإنشاء",
+        "actions": "الإجراءات",
+        "view": "عرض الطلب",
+        "empty": "لا توجد طلبات إعادة تحقق تطابق عوامل التصفية."
+      },
+      "recheckDetails": {
+        "title": "تفاصيل طلب إعادة التحقق",
+        "requestedBy": "طلب بواسطة",
+        "instructions": "تعليمات المشرف",
+        "itemNumber": "العنصر {{number}}",
+        "expectedLocation": "الموقع المتوقع",
+        "previousResult": "النتيجة السابقة",
+        "result": "نتيجة إعادة التحقق",
+        "countedQuantity": "الكمية المعدودة",
+        "submittedAt": "وقت الإرسال",
+        "evidence": "عرض الدليل",
+        "decide": "تسجيل القرار",
+        "cancel": "إلغاء الطلب"
+      },
+      "cancel": {
+        "title": "إلغاء طلب إعادة التحقق",
+        "message": "ستعود المشكلات غير المعالجة إلى حالة مفتوحة، وسيبقى الطلب وسجله محفوظين للتدقيق.",
+        "reason": "سبب الإلغاء",
+        "confirm": "إلغاء الطلب"
+      },
+      "evidence": {
+        "title": "دليل إعادة التحقق",
+        "alt": "الدليل المرفق مع نتيجة إعادة التحقق"
+      },
+      "messages": {
+        "synchronized": "تمت مزامنة مشكلات المراجعة بنجاح.",
+        "recheckCreated": "تم إنشاء طلب إعادة التحقق بنجاح.",
+        "decisionSaved": "تم حفظ قرار المشرف بنجاح.",
+        "recheckCancelled": "تم إلغاء طلب إعادة التحقق."
+      }
+    },
     "activityTypes": {
       "TASK_CREATED": "إنشاء المهمة",
       "IMPORT_QUEUED": "إدراج الاستيراد في قائمة الانتظار",
@@ -393,7 +570,11 @@
       "RETURNED_TO_PROGRESS": "إعادة المهمة للتنفيذ",
       "TASK_COMPLETED": "إكمال المهمة",
       "TASK_CANCELLED": "إلغاء المهمة",
-      "SCAN_SETTINGS_UPDATED": "تحديث إعدادات المسح"
+      "SCAN_SETTINGS_UPDATED": "تحديث إعدادات المسح",
+      "RECHECK_REQUESTED": "طلب إعادة تحقق",
+      "RECHECK_STARTED": "بدء إعادة التحقق",
+      "RECHECK_SUBMITTED": "إرسال نتيجة إعادة التحقق",
+      "REVIEW_DECISION_RECORDED": "تسجيل قرار المراجعة"
     },
     "image": {
       "title": "صورة المسح",

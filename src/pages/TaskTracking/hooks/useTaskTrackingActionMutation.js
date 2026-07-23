@@ -35,6 +35,7 @@ export function useTaskTrackingActionMutation() {
       const taskId = variables?.taskId;
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.taskTracking.task(taskId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.reviewCenter.task(taskId) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all }),
         queryClient.invalidateQueries({ queryKey: queryKeys.inventoryTasks.all }),
       ]);

@@ -131,6 +131,7 @@
       "areas": "Areas",
       "team": "Team",
       "attention": "Attention Required",
+      "review": "Review Center",
       "results": "Results",
       "scanEvents": "Scan Events",
       "timeline": "Timeline"
@@ -377,6 +378,182 @@
       "empty": "No timeline activity found.",
       "system": "System"
     },
+    "review": {
+      "title": "Review Center",
+      "subtitle": "Resolve inventory exceptions, request targeted rechecks, and keep every supervisor decision auditable.",
+      "synchronize": "Synchronize Issues",
+      "notUnderReview": "Review data is available in read-only mode. New requests and decisions are enabled only while the task is Under Review.",
+      "readyToComplete": "All blocking issues and active recheck requests are closed. The task is ready to complete.",
+      "sections": {
+        "issues": "Review Issues",
+        "rechecks": "Recheck Requests"
+      },
+      "summary": {
+        "blockingOpenIssues": "Blocking Open Issues",
+        "activeRecheckRequests": "Active Recheck Requests",
+        "submittedIssues": "Awaiting Supervisor Decision",
+        "resolvedIssues": "Resolved Issues"
+      },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allTypes": "All Issue Types"
+      },
+      "issueTypes": {
+        "NOT_PROCESSED": "Not Processed",
+        "LOCATION_MISMATCH": "Location Mismatch",
+        "QUANTITY_SHORTAGE": "Quantity Shortage",
+        "QUANTITY_OVERAGE": "Quantity Overage",
+        "CONFLICT": "Conflicting Results",
+        "EXTRA": "Extra Item",
+        "AMBIGUOUS": "Ambiguous Item"
+      },
+      "issueStatuses": {
+        "OPEN": "Open",
+        "RECHECK_REQUESTED": "Recheck Requested",
+        "RECHECK_IN_PROGRESS": "Recheck In Progress",
+        "RECHECK_SUBMITTED": "Recheck Submitted",
+        "RESOLVED": "Resolved",
+        "SUPERSEDED": "Superseded"
+      },
+      "recheckStatuses": {
+        "PENDING": "Pending",
+        "IN_PROGRESS": "In Progress",
+        "SUBMITTED": "Submitted",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "recheckItemStatuses": {
+        "PENDING": "Pending",
+        "SUBMITTED": "Submitted",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected",
+        "CANCELLED": "Cancelled"
+      },
+      "recheckResults": {
+        "FOUND_MATCHED": "Found in Expected Location",
+        "FOUND_DIFFERENT_LOCATION": "Found in Different Location",
+        "QUANTITY_CONFIRMED": "Quantity Confirmed",
+        "QUANTITY_DIFFERENT": "Different Quantity",
+        "NOT_FOUND": "Not Found",
+        "UNABLE_TO_VERIFY": "Unable to Verify"
+      },
+      "decisions": {
+        "ACCEPT_RECHECK_RESULT": "Accept Recheck Result",
+        "KEEP_CURRENT_RESULT": "Keep Current Result",
+        "CONFIRM_MISSING": "Confirm Missing",
+        "CONFIRM_DESTROYED": "Confirm Destroyed",
+        "CONFIRM_EXTRA": "Confirm Extra Item",
+        "REQUEST_ANOTHER_RECHECK": "Request Another Recheck"
+      },
+      "reasons": {
+        "RECHECK_CONFIRMED": "Recheck Confirmed",
+        "COUNTING_ERROR": "Counting Error",
+        "WRONG_LOCATION_SELECTED": "Wrong Location Selected",
+        "ITEM_MOVED": "Item Moved",
+        "ITEM_MISSING": "Item Missing",
+        "ITEM_DESTROYED": "Item Destroyed",
+        "ITEM_NOT_IN_SOURCE_DATA": "Item Not in Source Data",
+        "DUPLICATE_SOURCE_RECORD": "Duplicate Source Record",
+        "BARCODE_DAMAGED": "Barcode Damaged",
+        "SOURCE_DATA_ERROR": "Source Data Error",
+        "ACCESS_RESTRICTED": "Access Restricted",
+        "OTHER": "Other"
+      },
+      "issues": {
+        "title": "Review Issues",
+        "subtitle": "The current exceptions generated from accepted results and scan events.",
+        "resultsCount": "{{count}} issues",
+        "search": "Search item, description, or work area",
+        "status": "Status",
+        "type": "Issue Type",
+        "item": "Item",
+        "description": "Description",
+        "workArea": "Work Area",
+        "expected": "Expected",
+        "actual": "Actual",
+        "expectedQuantity": "Expected Quantity",
+        "actualQuantity": "Actual Quantity",
+        "detectedAt": "Detected At",
+        "actions": "Actions",
+        "view": "View Issue",
+        "blocking": "Blocks Task Completion",
+        "empty": "No review issues match the current filters.",
+        "createRecheck": "Create Recheck ({{count}})"
+      },
+      "issueDetails": {
+        "title": "Review Issue Details",
+        "history": "Supervisor Decision History",
+        "noHistory": "No supervisor decision has been recorded for this issue.",
+        "currentScan": "Current Scan Image",
+        "sourceScan": "Source Scan Image",
+        "resolve": "Record Decision"
+      },
+      "create": {
+        "title": "Create Recheck Request",
+        "selection": "{{count}} issues in {{area}}",
+        "assignedTo": "Assigned Inventory Staff",
+        "instructions": "Instructions",
+        "instructionsHelp": "{{count}} / 1500 characters",
+        "dueAt": "Due At",
+        "dueAtFuture": "The due time must be in the future.",
+        "imageRequired": "Require an evidence image",
+        "submit": "Create Request"
+      },
+      "decision": {
+        "issueTitle": "Resolve Review Issue",
+        "itemTitle": "Review Submitted Recheck",
+        "decision": "Supervisor Decision",
+        "reason": "Reason",
+        "note": "Decision Note",
+        "noteHelp": "{{count}} / 1000 characters. A note is required for Other and another recheck.",
+        "confirm": "Save Decision"
+      },
+      "rechecks": {
+        "title": "Recheck Requests",
+        "subtitle": "Targeted assignments sent to inventory staff for additional evidence.",
+        "resultsCount": "{{count}} requests",
+        "number": "Request Number",
+        "status": "Status",
+        "workArea": "Work Area",
+        "assignedTo": "Assigned To",
+        "items": "Items",
+        "dueAt": "Due At",
+        "createdAt": "Created At",
+        "actions": "Actions",
+        "view": "View Request",
+        "empty": "No recheck requests match the current filters."
+      },
+      "recheckDetails": {
+        "title": "Recheck Request Details",
+        "requestedBy": "Requested By",
+        "instructions": "Supervisor Instructions",
+        "itemNumber": "Item {{number}}",
+        "expectedLocation": "Expected Location",
+        "previousResult": "Previous Result",
+        "result": "Recheck Result",
+        "countedQuantity": "Counted Quantity",
+        "submittedAt": "Submitted At",
+        "evidence": "View Evidence",
+        "decide": "Record Decision",
+        "cancel": "Cancel Request"
+      },
+      "cancel": {
+        "title": "Cancel Recheck Request",
+        "message": "Unresolved issues will return to Open. The request and its history will remain available for audit.",
+        "reason": "Cancellation Reason",
+        "confirm": "Cancel Request"
+      },
+      "evidence": {
+        "title": "Recheck Evidence",
+        "alt": "Evidence submitted for recheck"
+      },
+      "messages": {
+        "synchronized": "Review issues synchronized successfully.",
+        "recheckCreated": "Recheck request created successfully.",
+        "decisionSaved": "Supervisor decision saved successfully.",
+        "recheckCancelled": "Recheck request cancelled."
+      }
+    },
     "activityTypes": {
       "TASK_CREATED": "Task created",
       "IMPORT_QUEUED": "Import queued",
@@ -393,7 +570,11 @@
       "RETURNED_TO_PROGRESS": "Returned to progress",
       "TASK_COMPLETED": "Task completed",
       "TASK_CANCELLED": "Task cancelled",
-      "SCAN_SETTINGS_UPDATED": "Scan settings updated"
+      "SCAN_SETTINGS_UPDATED": "Scan settings updated",
+      "RECHECK_REQUESTED": "Recheck requested",
+      "RECHECK_STARTED": "Recheck started",
+      "RECHECK_SUBMITTED": "Recheck submitted",
+      "REVIEW_DECISION_RECORDED": "Review decision recorded"
     },
     "image": {
       "title": "Scan Image",

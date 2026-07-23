@@ -4,6 +4,7 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import QrCodeScannerRoundedIcon from '@mui/icons-material/QrCodeScannerRounded';
 import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
@@ -31,14 +32,16 @@ import AttentionTab from './tabs/AttentionTab.jsx';
 import ResultsTab from './tabs/ResultsTab.jsx';
 import ScanEventsTab from './tabs/ScanEventsTab.jsx';
 import TimelineTab from './tabs/TimelineTab.jsx';
+import ReviewCenterTab from './review/ReviewCenterTab.jsx';
 
-const TABS = ['overview', 'areas', 'team', 'attention', 'results', 'scanEvents', 'timeline'];
+const TABS = ['overview', 'areas', 'team', 'attention', 'review', 'results', 'scanEvents', 'timeline'];
 const TERMINAL_STATUSES = new Set(['COMPLETED', 'CANCELLED']);
 const TAB_ICONS = {
   overview: <DashboardRoundedIcon />,
   areas: <AccountTreeRoundedIcon />,
   team: <GroupsRoundedIcon />,
   attention: <ReportProblemRoundedIcon />,
+  review: <RateReviewOutlinedIcon />,
   results: <FactCheckRoundedIcon />,
   scanEvents: <QrCodeScannerRoundedIcon />,
   timeline: <HistoryRoundedIcon />,
@@ -93,6 +96,8 @@ function TaskTrackingDetails() {
   const overviewQuery = useTrackingOverviewQuery(trackingTaskId);
   const overview = overviewQuery.data;
   const isTerminal = TERMINAL_STATUSES.has(overview?.status);
+  const canManageReview = overview?.status === 'UNDER_REVIEW'
+    && Boolean(overview?.allowedActions?.complete || overview?.allowedActions?.returnToProgress);
   const shouldPoll = !isTerminal;
   const areasQuery = useTrackingAreasQuery(trackingTaskId, activeTab === 'areas', shouldPoll);
   const teamQuery = useTrackingTeamQuery(trackingTaskId, activeTab === 'team', shouldPoll);
@@ -233,6 +238,14 @@ function TaskTrackingDetails() {
         {activeTab === 'areas' && <AreasTab query={areasQuery} />}
         {activeTab === 'team' && <TeamTab query={teamQuery} />}
         {activeTab === 'attention' && <AttentionTab query={attentionQuery} onOpenImage={setImageScanId} />}
+        {activeTab === 'review' && (
+          <ReviewCenterTab
+            taskId={trackingTaskId}
+            taskStatus={overview?.status}
+            canManage={canManageReview}
+            onOpenScanImage={setImageScanId}
+          />
+        )}
         {activeTab === 'results' && (
           <ResultsTab taskId={trackingTaskId} enabled domain={overview?.domain} isTerminal={isTerminal} onOpenImage={setImageScanId} />
         )}

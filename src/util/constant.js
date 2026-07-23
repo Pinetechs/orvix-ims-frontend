@@ -18,6 +18,7 @@ export const apiRoute = {
   lookups: '/api/lookups',
   dashboardOverview: '/api/dashboard/overview',
   inventoryTrackingTasks: '/api/inventory/tracking/tasks',
+  inventoryReviewTasks: '/api/inventory/tasks',
 };
 
 export const storageKeys = {
